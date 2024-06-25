@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/css">
+    <link rel="shortcut icon" href="img/logo.jpg">
+    <title>FinNS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+        
+</head>
+<style>
+    /* Custom CSS */
+    body {
+        background-color: #f8f9fa;
+        /* Màu nền */
+    }
+
+    header {
+        background-color: orange;
+        /* Màu nền của header */
+        padding: 20px;
+    }
+
+    .logo img {
+        width: 100px;
+        height: auto;
+        border-radius: 100%;
+    }
+
+    .content {
+        margin-top: 20px;
+    }
+
+    .card {
+        margin-bottom: 20px;
+        border-radius: 10%;
+    }
+
+    @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+        .logo img {
+            width: 70px;
+        }
+
+        .card {
+            margin-bottom: 10px;
+        }
+    }
+
+    /* Media queries cho thiết bị di động */
+    @media only screen and (max-width: 767px) {
+        .logo img {
+            width: 50px;
+        }
+
+        .card {
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 18px;
+        }
+
+        .card-text {
+            font-size: 14px;
+        }
+    }
+</style>
+
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="img/logo.jpg" alt="">
+            </div>
+            <div class="title">
+                <h1>FPT Indoor Navigation</h1>
+            </div>
+        </div>
+    </header>
+    <div class="container content">
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-6">
+                <form class="d-flex">
+                    <input class="form-control rounded-start rounded-search-input" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-success rounded-end" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="row justify-content-center" id="search-results" style="display: none;">
+            <div class="col-md-6">
+                <ul class="list-group" id="results-list">
+                    <!-- Kết quả tìm kiếm sẽ được thêm vào đây -->
+                    <li class="list-group-item">Result 1</li>
+                    <li class="list-group-item">Result 2</li>
+                    <li class="list-group-item">Result 3</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    // Giả sử kết quả tìm kiếm được lưu trong một mảng
+var searchResults = [
+    "Result 1",
+    "Result 2",
+    "Result 3"
+];
+
+// Lấy danh sách kết quả từ DOM
+var resultsList = document.getElementById('results-list');
+
+// Xóa nội dung hiện tại của danh sách (nếu có)
+resultsList.innerHTML = '';
+
+// Thêm mỗi kết quả vào danh sách
+searchResults.forEach(function(result) {
+    var listItem = document.createElement('li');
+    listItem.className = 'list-group-item';
+    listItem.textContent = result;
+    resultsList.appendChild(listItem);
+});
+
+// Hiển thị phần kết quả tìm kiếm
+document.getElementById('search-results').style.display = 'block';
+
+</script>
+</html>

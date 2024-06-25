@@ -1,0 +1,763 @@
+﻿@page
+@using Newtonsoft.Json
+@model AR_Navigation.Pages.HomePage.HomeModel
+@{
+    Layout = "_HomeLayout";
+}
+<!-- Thêm mã JavaScript để lấy thông tin người dùng từ sessionStorage -->
+
+<div class="hero_area">
+    <!-- header section strats -->
+    <div class="hero_bg_box">
+        <div class="img-box">
+            <img src="~/Images/Other/DH_FPT.jpg" alt="FinNS">
+        </div>
+    </div>
+
+    <header class="header_section">
+        <div class="header_top">
+            <div class="container-fluid">
+                <div class="contact_link-container">
+                    <a href="" class="contact_link1">
+                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                        <span>
+                            Thach That, Hoa Lac, Ha Noi
+                        </span>
+                    </a>
+                    <a href="" class="contact_link2">
+                        <i class="fa fa-phone" aria-hidden="true"></i>
+                        <span>
+                            Call : +84 987697592
+                        </span>
+                    </a>
+                    <a href="" class="contact_link3">
+                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <span>
+                            tuyennvhe150819@fpt.edu.vn
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="header_bottom">
+            <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg custom_nav-container">
+                    <b class="navbar-brand" style="display: inline-block;">
+                        <img src="/Images/Other/FPT5.jpg" style="width:55px; vertical-align: middle;" />
+                        <span style="vertical-align: middle;font-size:35px; padding:5px;">FinNS</span>
+                    </b>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class=""></span>
+                    </button>
+                    <div class="collapse navbar-collapse ml-auto" id="navbarSupportedContent">
+                        <ul class="navbar-nav" id="navbar-head">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="Home" style="color: white;">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="scrollToAboutUs(event)" style="color: white;">About us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="scrollToContactUs(event)" style="color: white;">Contact us</a>
+                            </li>
+                            <li>
+                                <a href="https://daihoc.fpt.edu.vn/" class="btn btn-outline-light mx-2 my-1 my-sm-4" role="button" target="_blank" style="color: white;">
+                                    <i class="fa fa-search" style="font-size: 20px;"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <!-- end header section -->
+    <!-- slider section -->
+    <section class=" slider_section ">
+        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="detail-box">
+                                    <h1 style="vertical-align: middle; white-space: nowrap;">
+                                        What is FPT Indoor Navigation System? <br />
+                                        <span>
+                                            How valid is it?
+                                        </span>
+                                    </h1>
+                                    <p>
+                                        The meaning of FPT Indoor Positioning System is to solve the actual needs of users when traveling in complex spaces such as shopping centers, large buildings, airports, hospitals,... helping them easily Easy to navigate and save time finding your way
+                                    </p>
+                                    <div class="btn-box">
+                                        <a href="/Ar_App/Home" class="btn-2">Get Start</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end slider section -->
+</div>
+
+<!-- about section -->
+
+<section class="about_section layout_padding">
+    <div class="container" id="aboutUsSection">
+        <div class="row">
+            <div class="col-md-6 px-0">
+                <div class="img_container">
+                    <div class="img-box">
+                        <img src="~/Images/Other/roomBox.jpg" alt="" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 px-0">
+                <div class="detail-box">
+                    <div class="heading_container ">
+                        <h6  style="margin-top:-10px;margin-bottom:10px;">
+                            <i class="fa fa-heart-o" aria-hidden="true"> About Us</i>
+                        </h6>
+                        <h2>
+                            Our Team
+                        </h2>
+                    </div>
+                    <div id="moreContent">
+                        <p>
+                            This is our group's 2024 graduation project.
+                            With a passion for technology, a eagerness to learn and the ability to work well in a team, we believe we will complete the project successfully, bringing high practical value to users.
+                        </p>
+                    </div>
+                    <div id="fullContent" style="display: none;">
+                        <p>
+                            This is our group's 2024 graduation project. With a passion for technology, a eagerness to learn and the ability to work well in a team,
+                            we believe we will complete the project successfully, bringing high practical value to users.<br />
+                            We hope to receive support, suggestions and opportunities to develop the project further after graduation
+                        </p>
+                    </div>
+                    <div class="btn-box">
+                        <button onclick="toggleContent()" style="background-color: red; color: white; border: none; padding: 10px 20px; cursor: pointer;">Read More</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- end about section -->
+<!-- service section -->
+
+<section class="service_section layout_padding" style="background-image: url('/Images/Other/Sev.jpg'); background-size: 100% auto; background-repeat: no-repeat; background-position: center;">
+    <div class="container">
+        <div class="heading_container heading_center">
+            <h2>
+                Our services
+            </h2>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="box " style="background-color: rgba(255, 255, 255, 0.7);">
+                    <div class="img-box">
+                    </div>
+                    <div class="detail-box">
+                        <h6>
+                            <i class="fa fa-map-marker" aria-hidden="true" style="font-size:25px">
+                            </i>
+                            Navigation and Positioning
+                        </h6>
+                        <div id="moreContent2">
+                            <p>
+                                1.Precise Positioning: Utilize cutting-edge AR
+                                technology to pinpoint user location within
+                                buildings with pinpoint accuracy.<br />
+                                2.Smart Navigation: Provide turn-by-turn directions to reach desired
+                                destinations within the building,
+                                including elevators, stairs, and other walkways.
+                            </p>
+                        </div>
+                        <div id="fullContent2" style="display: none;">
+                            <p>
+                                1.Precise Positioning: Utilize cutting-edge AR
+                                technology to pinpoint user location within
+                                buildings with pinpoint accuracy.
+                            </p>
+                            <p>
+                                2.Smart Navigation: Provide turn-by-turn directions to reach desired
+                                destinations within the building,
+                                including elevators, stairs, and other walkways.
+                            </p>
+                            <p>
+                                3.Interactive 3D Maps: Display detailed 3D maps of the building, allowing users to easily
+                                visualize their location and destination.
+                            </p>
+                            <p>
+                                4.Search by Venue Name or Service Type: Users can search for desired destinations by name or service type,
+                                such as restaurants, shops, restrooms, etc.
+                            </p>
+                            <p>
+                                5.Choose the Most Suitable Route: The system will suggest the most suitable routes based on user needs and preferences, such as the shortest route,
+                                the route with elevators, etc.
+                            </p>
+                        </div>
+                        <div class="btn-box">
+                            <button onclick="toggleContent2()" style="background-color: red; color: white; border: none; padding: 10px 20px; cursor: pointer;">Read More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="box " style="background-color: rgba(255, 255, 255, 0.7);">
+                    <div class="img-box">
+                    </div>
+                    <div class="detail-box">
+                        <h6>
+                            <i class="fa fa-shield" aria-hidden="true" style="font-size:25px;"></i>
+                            Additional Features
+                        </h6>
+                        <div id="moreContent3">
+                            <p>
+                                1.Venue Details: Provide detailed information about each destination,
+                                including opening hours,
+                                phone number, website, Images/Other, etc.
+                            </p>
+                            <p>
+                                2.Ratings and Reviews: Allow users to rate and review destinations,
+                                helping others make better choices.
+                            </p>
+                        </div>
+                        <div id="fullContent3" style="display: none;">
+                            <p>
+                                1.Venue Details: Provide detailed information about each destination,
+                                including opening hours,
+                                phone number, website, Images/Other, etc.
+                            </p>
+                            <p>
+                                2.Ratings and Reviews: Allow users to rate and review destinations,
+                                helping others make better choices.
+                            </p>
+                            <p>
+                                3.Deals and Promotions: Notify users of current
+                                deals and promotions at venues within the building.
+                            </p>
+                            <p>
+                                4.Social Media Integration: Allow users to share their
+                                experiences with friends on social media.
+                            </p>
+                            <p>
+                                5.Multilingual Support: Support multiple languages
+                                to cater to international users.
+                            </p>
+                        </div>
+                        <div class="btn-box">
+                            <button onclick="toggleContent3()" style="background-color: red; color: white; border: none; padding: 10px 20px; cursor: pointer;">Read More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="box " style="background-color: rgba(255, 255, 255, 0.7);">
+                    <div class="img-box">
+                    </div>
+                    <div class="detail-box">
+                        <h6>
+                            <i class="fa fa-user-circle-o" aria-hidden="true" style="font-size:25px;"></i>
+                            User Benefits
+                        </h6>
+                        <div id="moreContent4">
+                            <p>
+                                1.Save Time and Effort: Help users easily find their way to their desired destination
+                                without having to ask for directions or get lost.
+                            </p>
+                            <p>
+                                2.Enhanced Experience: Provide a more convenient and enjoyable shopping,
+                                entertainment, and learning experience
+                            </p>
+                        </div>
+                        <div id="fullContent4" style="display: none;">
+                            <p>
+                                1.Save Time and Effort: Help users easily find their way to their desired destination
+                                without having to ask for directions or get lost.
+                            </p>
+                            <p>
+                                2.Enhanced Experience: Provide a more convenient and enjoyable shopping,
+                                entertainment, and learning experience
+                            </p>
+                            <p>
+                                3.Increased Efficiency: Help businesses within the building
+                                attract more customers and increase revenue.
+                            </p>
+                            <p>
+                                4.Effective Information Management: Assist building management in managing
+                                information and services more effectively.
+                            </p>
+                            <p>
+                                5.Offer a demo or free trial for users
+                                to experience the service.
+                            </p>
+                        </div>
+                        <div class="btn-box">
+                            <button onclick="toggleContent4()" style="background-color: red; color: white; border: none; padding: 10px 20px; cursor: pointer;">Read More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- end service section -->
+<!-- client section -->
+
+<section class="client_section layout_padding">
+    <div class="container ">
+        <div class="heading_container heading_center">
+            <h2>
+                What is says our clients
+            </h2>
+        </div>
+        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="box">
+                        <div class="img-box">
+                            <img src="/Images/Avatar/Tuyen_avatar.jpg" alt="Tuyen">
+                        </div>
+                        <div class="detail-box">
+                            <h4>
+                                Nguyễn Văn Tuyên
+                            </h4>
+                            <p>
+                                Ứng dụng này rất dễ sử dụng, ngay cả đối với những người
+                                không rành công nghệ. Các hướng dẫn rất rõ ràng và dễ hiểu,
+                                và bản đồ 3D rất hữu ích để hình dung vị trí của tôi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="box">
+                        <div class="img-box">
+                            <img src="/Images/Avatar/Quan.jpg" alt="Quan">
+                        </div>
+                        <div class="detail-box">
+                            <h4>
+                                Nguyễn Minh Quân
+                            </h4>
+                            <p>
+                                Ứng dụng này rất dễ sử dụng và rất thú vị.
+                                Tôi khuyên bạn nên sử dụng web
+                                này cho bất kỳ ai muốn đi lại trong tòa nhà này.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item ">
+                    <div class="box">
+                        <div class="img-box">
+                            <img src="~/Images/Avatar/ngocn.jpg" alt="Ngoc">
+                        </div>
+                        <div class="detail-box">
+                            <h4>
+                                Đinh Ngọc
+                            </h4>
+                            <p>
+                                Ứng dụng này rất đẹp và trực quan.
+                                Giao diện người dùng rất dễ sử dụng
+                                và các bản đồ 3D rất bắt mắt.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item ">
+                    <div class="box">
+                        <div class="img-box">
+                            <img src="~/Images/Avatar/tuananhN.jpg" alt="TuanAnh">
+                        </div>
+                        <div class="detail-box">
+                            <h4>
+                                Tuấn Anh
+                            </h4>
+                            <p>
+                                Ứng dụng này rất dễ sử dụng và rất thú vị.
+                                Tôi khuyên bạn nên sử dụng web
+                                này cho bất kỳ ai muốn đi lại trong tòa nhà này
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel_btn-box">
+                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about_section layout_padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 px-0">
+                <div class="img_container">
+                    <div class="img-box">
+                        <img src="~/Images/Other/Off.jpg" alt="" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 px-0">
+                <div class="detail-box">
+                    <div class="heading_container ">
+                        <h6 id="aboutUsSection" style="margin-top:-10px;margin-bottom:10px;">
+                            <i class="fa fa-question-circle" aria-hidden="true"></i> FAQ Question</i>
+                        </h6>
+                        <h2>
+                            Frequently asked questions
+                        </h2>
+                    </div>
+                    <div id="moreContent5">
+                        <p style="display: inline-block; margin-right: 5px; font-size: 0.95rem; position: relative;">
+                            What buildings are supported for indoor
+                            positioning and <span style="display: inline-block;">navigation?</span>
+                        </p>
+                        <button onclick="toggleContent5()" id="toggleButton5" style="background-color: red; color: white; border: none; padding: 0 10px; cursor: pointer;">
+                            <i class="fa fa-plus"></i> <!-- Biểu tượng dấu cộng từ Font Awesome -->
+                        </button>
+                    </div>
+
+                    <div id="fullContent5" style="display: none;">                 
+                        <p style="display: inline-block; margin-right: 5px; position: relative;">
+                            Currently, the app supports indoor positioning and navigation at buildings like:
+                            shopping mall A, airport B, hospital C, ....
+                            We have plans to expand the service to more buildings in the future.
+                            <span style="position: absolute; bottom: -4px; left: 0; width: 100%; border-bottom: 1px solid black;"></span> <!-- Thanh ngang -->
+                        </p>
+                    </div>
+                   @*  <div class="btn-box" id="buttonContainer5">
+                        <button onclick="toggleContent5()" id="toggleButton5" style="background-color: red; color: white; border: none; padding: 10px 20px; cursor: pointer;">
+                            <i class="fa fa-plus"></i> <!-- Biểu tượng dấu cộng từ Font Awesome -->
+                        </button>
+                    </div> *@
+                    <div id="moreContent6">
+                        <p style="display: inline-block; margin-right: 5px; font-size:0.95rem;">
+                            Do I need to pay to use the indoor positioning
+                            and navigation<span style="display: inline-block;">service?</span>
+                        </p>
+                        <button onclick="toggleContent6()" id="toggleButton6" style="background-color: red; color: white; border: none; padding: 0 10px; cursor: pointer;">
+                            <i class="fa fa-plus"></i> <!-- Biểu tượng dấu cộng từ Font Awesome -->
+                        </button>                            
+                        
+                    </div>
+                    <div id="fullContent6" style="display: none;">
+                        <p style=" position: relative;">
+                            Offer a basic version of the service for free. 
+                            This could include features like basic navigation 
+                            and point-of-interest (POI) search.
+                            <span style="position: absolute; bottom: -4px; left: 0; width: 100%; border-bottom: 1px solid black;"></span> <!-- Thanh ngang -->
+                        </p>
+                    </div>
+                    <div id="moreContent7">
+                        <p style="display: inline-block; margin-right: 5px; font-size:0.95rem;">
+                            How can I know if I'm on the correct floor of the
+                            <span style="display: inline-block;">building?</span>
+                        </p>
+                        <button onclick="toggleContent7()" id="toggleButton7" style="background-color: red; color: white; border: none; padding: 0 10px; cursor: pointer;">
+                            <i class="fa fa-plus"></i> <!-- Biểu tượng dấu cộng từ Font Awesome -->
+                        </button>
+                    </div>
+                    <div id="fullContent7" style="display: none;">
+                        <p style=" position: relative;">
+                            Floor number indicators: Most buildings will have floor number indicators displayed prominently near elevators and stairwells. These can be digital displays, 
+                            engraved signs, or even simple painted numbers on the wall.
+                            <span style="position: absolute; bottom: -4px; left: 0; width: 100%; border-bottom: 1px solid black;"></span> <!-- Thanh ngang -->
+                        </p>
+                    </div>
+                    <div id="moreContent8">
+                        <p style="display: inline-block; margin-right: 5px; font-size:0.95rem;">
+                            Does the app support visual impairment
+                            <span style="display: inline-block;">users?</span>
+                        </p>
+                        <button onclick="toggleContent8()" id="toggleButton8" style="background-color: red; color: white; border: none; padding: 0 10px; cursor: pointer;">
+                            <i class="fa fa-plus"></i> <!-- Biểu tượng dấu cộng từ Font Awesome -->
+                        </button>
+                    </div>
+                    <div id="fullContent8" style="display: none;">
+                        <p style=" position: relative;">
+                            Our application is improving to integrate voice with the hope that it will 
+                            support navigation for the visually impaired in the future.
+                            <span style="position: absolute; bottom: -4px; left: 0; width: 100%; border-bottom: 1px solid black;"></span> <!-- Thanh ngang -->
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- end client section -->
+<!-- team section -->
+
+
+<!-- end team section -->
+<!-- info section -->
+<section class="info_section ">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="info_logo">
+                    <b class="navbar-brand" style="display: inline-block;">
+                        <img src="/Images/Other/FPT2.jpg" style="width:65px; vertical-align: middle;" />
+                        <span style="vertical-align: middle;font-size:35px;">FinNS</span>
+                    </b>
+                    <p>
+                        Our activities in developing indoor navigation and positioning projects date back to 2024. The idea originated from the need 
+                        for an application that helps users navigate easily in complex buildings miscellaneous.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info_links">
+                    <h5>
+                        Useful Link
+                    </h5>
+                    <ul>
+                        <li>
+                            <a href="">
+                               FPT University
+                            </a>
+                        </li>                   
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info_info">
+                    <h5 id="contactUsSection">
+                        Contact Us
+                    </h5>
+                </div>
+                <div class="info_contact">
+                    <a href ="https://daihoc.fpt.edu.vn/" class="">
+                        <i class="fa fa-map-marker" aria-hidden="true"></i>
+                        <span style="font-size:15px;">
+                            FPT Thach That, Hoa Lac ,Ha Noi
+                        </span>
+                    </a>
+                    <a href="" class="">
+                        <i class="fa fa-phone" aria-hidden="true"></i>
+                        <span style="font-size:15px;">
+                            Call : +84 987697592
+                        </span>
+                    </a>
+                    <a href="" class="">
+                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <span style="font-size:15px;">
+                           tuyennvhe150819@fpt.edu.vn
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info_form ">
+                    <h5>
+                        Newsletter
+                    </h5>
+                    <form action="#">
+                        <input type="email" placeholder="Enter your email">
+                        <button>
+                            Subscribe
+                        </button>
+                    </form>
+                    <div class="social_box" style="padding:0 0 0 20px;">
+                        <a href="">
+                            <i class="fa fa-facebook" aria-hidden="true"></i>
+                        </a>
+                        <a href="">
+                            <i class="fa fa-twitter" aria-hidden="true"></i>
+                        </a>
+                        <a href="">
+                            <i class="fa fa-youtube" aria-hidden="true"></i>
+                        </a>
+                        <a href="">
+                            <i class="fa fa-instagram" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- end info_section -->
+<!-- footer section -->
+<footer class="container-fluid footer_section">
+    <p>
+        &copy; <span id="currentYear"></span> | All Rights Reserved | Powered by FPT Indoor Navigation System Design Department
+    </p>
+</footer>
+<!-- footer section -->
+
+<script>
+    $(document).ready(function () {
+        // Lấy dữ liệu từ sessionStorage
+        var userJson = sessionStorage.getItem('user');
+        if (userJson) {
+            var user = JSON.parse(userJson);
+            console.log('Username:', user.username);
+            console.log('Role:', user.role);
+            
+
+            $('#navbar-head').append('<li class="nav-item"><a class="nav-link" id="logout-link">Logout</a></li>');
+            $('#navbar-head').append('<li class="nav-item"><a class="nav-link" href="/Dashboard/Index">Dashboard</a></li>');
+        } else {
+            $('#navbar-head').append('<li class="nav-item"><a class="nav-link" href="/Authen/Login">Login</a></li>');
+        }
+        $('#navbar-head').on('click', '#logout-link', function (e) {
+            e.preventDefault();
+            sessionStorage.removeItem('user');
+            window.location.href = '/HomePage/Home';
+        });
+    });
+    function scrollToAboutUs(event) {
+        event.preventDefault(); // Ngăn chặn hành động mặc định của liên kết
+
+        var aboutUsSection = document.getElementById("aboutUsSection");
+        aboutUsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    function scrollToContactUs(event) {
+        event.preventDefault(); // Ngăn chặn hành động mặc định của liên kết
+
+        var contactUsSection = document.getElementById("contactUsSection");
+        contactUsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    
+    var clicked = false;
+    var clicked2 = false;
+    var clicked3 = false;
+    var clicked4 = false;
+    var clicked5 = false;
+    var clicked6 = false;
+    var clicked7 = false;
+    var clicked8 = false;
+    function toggleContent() {
+        var moreContent = document.getElementById("moreContent");
+        var fullContent = document.getElementById("fullContent");
+
+        if (!clicked) {
+            moreContent.style.display = "none";
+            fullContent.style.display = "block";
+            clicked = true;
+        } else {
+            moreContent.style.display = "block";
+            fullContent.style.display = "none";
+            clicked = false;
+        }
+    }
+    function toggleContent2() {
+        var moreContent2 = document.getElementById("moreContent2");
+        var fullContent2 = document.getElementById("fullContent2");
+
+        if (!clicked2) {
+            moreContent2.style.display = "none";
+            fullContent2.style.display = "block";
+            clicked2 = true;
+        } else {
+            moreContent2.style.display = "block";
+            fullContent2.style.display = "none";
+            clicked2 = false;
+        }
+    }
+    function toggleContent3() {
+        var moreContent3 = document.getElementById("moreContent3");
+        var fullContent3 = document.getElementById("fullContent3");
+
+        if (!clicked3) {
+            moreContent3.style.display = "none";
+            fullContent3.style.display = "block";
+            clicked3 = true;
+        } else {
+            moreContent3.style.display = "block";
+            fullContent3.style.display = "none";
+            clicked3 = false;
+        }
+    }
+    function toggleContent4() {
+        var moreContent4 = document.getElementById("moreContent4");
+        var fullContent4 = document.getElementById("fullContent4");
+
+        if (!clicked4) {
+            moreContent4.style.display = "none";
+            fullContent4.style.display = "block";
+            clicked4 = true;
+        } else {
+            moreContent4.style.display = "block";
+            fullContent4.style.display = "none";
+            clicked4 = false;
+        }
+    }
+    function toggleContent5() {
+        var fullContent5 = document.getElementById("fullContent5");
+        var toggleButton5 = document.getElementById("toggleButton5");
+
+        if (!clicked5) {
+            fullContent5.style.display = "block";
+            toggleButton5.innerHTML = '<i class="fa fa-minus"></i>'; // Thay đổi nội dung của nút thành biểu tượng dấu trừ
+            clicked5 = true;
+        } else {
+            fullContent5.style.display = "none";
+            toggleButton5.innerHTML = '<i class="fa fa-plus"></i>'; // Thay đổi nội dung của nút thành biểu tượng dấu cộng
+            clicked5 = false;
+        }
+    }
+    function toggleContent6() {
+        var fullContent6 = document.getElementById("fullContent6");
+        var toggleButton6 = document.getElementById("toggleButton6");
+
+        if (!clicked6) {
+            fullContent6.style.display = "block";
+            toggleButton6.innerHTML = '<i class="fa fa-minus"></i>'; // Thay đổi nội dung của nút thành biểu tượng dấu trừ
+            clicked6 = true;
+        } else {
+            fullContent6.style.display = "none";
+            toggleButton6.innerHTML = '<i class="fa fa-plus"></i>'; // Thay đổi nội dung của nút thành biểu tượng dấu cộng
+            clicked6 = false;
+        }
+    }
+    function toggleContent7() {
+        var fullContent7 = document.getElementById("fullContent7");
+        var toggleButton7 = document.getElementById("toggleButton7");
+
+        if (!clicked7) {
+            fullContent7.style.display = "block";
+            toggleButton7.innerHTML = '<i class="fa fa-minus"></i>'; // Thay đổi nội dung của nút thành biểu tượng dấu trừ
+            clicked7 = true;
+        } else {
+            fullContent7.style.display = "none";
+            toggleButton7.innerHTML = '<i class="fa fa-plus"></i>'; // Thay đổi nội dung của nút thành biểu tượng dấu cộng
+            clicked7 = false;
+        }
+    }
+    function toggleContent8() {
+        var fullContent8 = document.getElementById("fullContent8");
+        var toggleButton8 = document.getElementById("toggleButton8");
+
+        if (!clicked8) {
+            fullContent8.style.display = "block";
+            toggleButton8.innerHTML = '<i class="fa fa-minus"></i>'; // Thay đổi nội dung của nút thành biểu tượng dấu trừ
+            clicked8 = true;
+        } else {
+            fullContent8.style.display = "none";
+            toggleButton8.innerHTML = '<i class="fa fa-plus"></i>'; // Thay đổi nội dung của nút thành biểu tượng dấu cộng
+            clicked8 = false;
+        }
+    }
+</script>

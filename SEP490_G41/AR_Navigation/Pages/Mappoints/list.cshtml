@@ -1,0 +1,603 @@
+﻿@page
+@model AR_Navigation.Pages.Mappoints.listModel
+@{
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header no-gutters">
+    <h1>MapPoint List</h1>
+    <div class="row align-items-md-center">
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="input-affix m-v-10">
+                        <select class="form-control" id="mappoint-facility">
+                            <option value="0" disabled selected>Select by facility</option>
+                            <!-- Options for facilities will be created by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-affix m-v-10">
+                        <select class="form-control" id="mappoint-building">
+                            <option value="0" disabled selected>Select by building</option>
+                            <!-- Options for buildings will be created by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-affix m-v-10">
+                        <select class="form-control" id="mappoint-floor">
+                            <option value="0" disabled selected>Select by floor</option>
+                            <!-- Options for buildings will be created by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group d-flex align-items-center">
+                        <div class="switch mt-2 m-r-10">
+                            <input type="checkbox" id="mappoint-destination-switch" checked="">
+                            <label for="mappoint-destination-switch"></label>
+                        </div>
+                        <label class="mt-3">Destination</label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-4">
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="card" id="list-view">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Map Point Name</th>
+                            <th>Location (Web)</th>
+                            <th>Location (App)</th>
+                            <th>Location (GPS)</th>
+                            <th>Floor Name</th>
+                            <th>Building Name</th>
+                            <th>Image</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="map-list">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row justify-content-center">
+    <nav>
+        <ul id="pagination" class="pagination"></ul>
+    </nav>
+</div>
+
+@* Modal Create Map *@
+<div class="modal fade" id="create-new-map">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Map Point</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-page="/Mappoints/List" asp-page-handler="CreateMapPoint" id="form-add-map-point" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="new-map-point-name">Map Point Name</label>
+                        <input type="text" class="form-control" id="new-map-point-name" placeholder="Please input map point name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-point-location-web">Location (Web)</label>
+                        <input type="text" class="form-control" id="new-map-point-location-web" placeholder="Please input web location">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-point-location-app">Location (App)</label>
+                        <input type="text" class="form-control" id="new-map-point-location-app" placeholder="Please input app location">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-point-location-gps">Location (GPS)</label>
+                        <input type="text" class="form-control" id="new-map-point-location-gps" placeholder="Please input GPS location">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-point-floor">Floor ID</label>
+                        <input type="text" class="form-control" id="new-map-point-floor" placeholder="Please input floor ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-point-building">Building ID</label>
+                        <input type="text" class="form-control" id="new-map-point-building" placeholder="Please input building ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-point-image">Image</label>
+                        <input type="file" class="form-control-file" id="new-map-point-image">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="create-map-point-btn">Create Map Point</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* Modal Edit Map *@
+<div class="modal fade" id="edit-map">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Map Point</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-page="/Mappoints/List" asp-page-handler="EditMapPoint" id="form-edit-map-point" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="MapPointId" id="map-point-id" value="">
+                    <div class="form-group">
+                        <label for="edit-map-point-name">Map Point Name</label>
+                        <input type="text" class="form-control" id="edit-map-point-name" placeholder="Please input map point name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-map-point-location-web">Location (Web)</label>
+                        <input type="text" class="form-control" id="edit-map-point-location-web" placeholder="Please input web location">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-map-point-location-app">Location (App)</label>
+                        <input type="text" class="form-control" id="edit-map-point-location-app" placeholder="Please input app location">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-map-point-location-gps">Location (GPS)</label>
+                        <input type="text" class="form-control" id="edit-map-point-location-gps" placeholder="Please input GPS location">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-map-point-floor">Floor Name</label>
+                        <input type="text" class="form-control" id="edit-map-point-floor" placeholder="Please input floor ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-map-point-building">Building Name</label>
+                        <input type="text" class="form-control" id="edit-map-point-building" placeholder="Please input building ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-map-point-image">Image</label>
+                        <input type="file" class="form-control-file" id="edit-map-point-image">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="edit-map-point-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        var userJson = sessionStorage.getItem('user');
+        if (!userJson) {
+            window.location.href = '/Authen/Login';
+        } else {
+            var user = JSON.parse(userJson);
+            if (user.status !== "active") {
+                // Display SweetAlert message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Access Denied',
+                    text: 'You do not have permission to access this page.',
+                    showConfirmButton: false,
+                    timer: 2000 // Close the alert after 2 seconds
+                }).then((result) => {
+                    // Redirect to login page after the alert is closed
+                    window.location.href = '/HomePage/Home';
+                });
+            }
+        }
+
+        var currentPage = 1;
+        var itemsPerPage = 5;
+
+        function updateMapPointList(mapPoints, currentPage, itemsPerPage) {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, mapPoints.length);
+            const mapPointsToShow = mapPoints.slice(startIndex, endIndex);
+
+            $('#map-list').empty();
+
+            for (const mapPoint of mapPointsToShow) {
+                const mapPointRow = `
+                <tr>
+                    <td>${mapPoint.mappointName}</td>
+                    <td>${mapPoint.locationWeb}</td>
+                    <td>${mapPoint.locationApp}</td>
+                    <td>${mapPoint.locationGps}</td>
+                    <td>${mapPoint.floorName}</td>
+                    <td>${mapPoint.buildingName}</td>
+                    <td>
+                        <div class="avatar avatar-image rounded"><img src="/Images/Mappoint/${mapPoint.image}" alt=""> </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="dropdown dropdown-animated scale-left">
+                            <button class="btn btn-primary viewMappoint" type="button" data-id="${mapPoint.mapPointId}">View Detail</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+                $('#map-list').append(mapPointRow);
+            }
+        }
+
+
+        function createPagination(totalPages, mapPoints) {
+            var pagination = $('#pagination');
+            if (totalPages > 0) {
+                pagination.empty();
+                var startPage = Math.max(1, currentPage - 2);
+                var endPage = Math.min(totalPages, currentPage + 2);
+
+                // Thêm nút "Prev"
+                var prevLi = $('<li class="page-item"><a class="page-link" href="#">Prev</a></li>');
+                prevLi.data('page', 'Prev');
+                pagination.append(prevLi);
+
+                // Tạo các nút phân trang
+                for (var i = startPage; i <= endPage; i++) {
+                    var li = $('<li class="page-item"><a class="page-link" href="#">' + i + '</a></li>');
+                    li.data('page', i);
+                    if (i === currentPage) {
+                        li.addClass('active');
+                    }
+                    pagination.append(li);
+                }
+
+                // Thêm nút "Next"
+                var nextLi = $('<li class="page-item"><a class="page-link" href="#">Next</a></li>');
+                nextLi.data('page', 'Next');
+                pagination.append(nextLi);
+
+                pagination.show();
+            } else {
+                pagination.hide();
+            }
+
+            pagination.off('click').on('click', 'a', function (event) {
+                event.preventDefault();
+                var page = $(this).parent().data('page');
+                if (page === 'Next') {
+                    currentPage = Math.min(currentPage + 1, totalPages);
+                } else if (page === 'Prev') {
+                    currentPage = Math.max(currentPage - 1, 1);
+                } else {
+                    currentPage = page;
+                }
+                updatePagination(totalPages, mapPoints);
+                updateMapPointList(mapPoints, currentPage, itemsPerPage);
+            });
+        }
+
+        function updatePagination(totalPages, mapPoints) {
+            var pagination = $('#pagination');
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, currentPage + 2);
+
+            // Cập nhật nút "Prev"
+            var prevLi = pagination.find('li:first');
+            if (currentPage === 1) {
+                prevLi.addClass('disabled');
+            } else {
+                prevLi.removeClass('disabled');
+            }
+
+            // Cập nhật các nút phân trang
+            var pageLinks = pagination.find('li:not(:first):not(:last)');
+            pageLinks.removeClass('active');
+            for (var i = 0; i < pageLinks.length; i++) {
+                var pageLink = $(pageLinks[i]);
+                var page = startPage + i;
+                pageLink.find('a').text(page);
+                pageLink.data('page', page);
+                if (page === currentPage) {
+                    pageLink.addClass('active');
+                }
+            }
+
+            // Cập nhật nút "Next"
+            var nextLi = pagination.find('li:last');
+            if (currentPage === totalPages) {
+                nextLi.addClass('disabled');
+            } else {
+                nextLi.removeClass('disabled');
+            }
+        }
+
+       
+
+        // Get map point list from API
+        $.ajax({
+            url: 'https://finnsapi.developvn.click/api/mappoints',
+            type: 'GET',
+            dataType: 'json',
+            success: function (mapPoints) {
+                const totalPages = Math.ceil(mapPoints.length / itemsPerPage);
+                updateMapPointList(mapPoints, 1, itemsPerPage);
+                createPagination(totalPages, mapPoints);
+            },
+            error: function (xhr, status, error) {
+                console.log('Error loading map points from API: ' + error);
+            }
+        });
+
+       
+        // Filter mappoint points by building, floor and destination
+        $('#mappoint-building, #mappoint-floor, #mappoint-destination-switch').on('change', function () {
+            const selectedBuildingId = $('#mappoint-building').val(); // Get the selected buildingId
+            const selectedFloorId = $('#mappoint-floor').val(); // Get the selected floorId
+            const selectedDestination = $('#mappoint-destination-switch').is(':checked'); // Get the selected destination
+
+            let url = 'https://finnsapi.developvn.click/api/mappoints';
+            let filters = [];
+
+            if (selectedBuildingId !== '0' && selectedBuildingId) {
+                filters.push(`BuildingId eq ${selectedBuildingId}`);
+            }
+
+            if (selectedFloorId !== '0' && selectedFloorId) {
+                filters.push(`FloorId eq ${selectedFloorId}`);
+            }
+
+            if (selectedDestination !== null) {
+                filters.push(`Destination eq ${selectedDestination}`);
+            }
+
+            if (filters.length > 0) {
+                url += '?$filter=' + filters.join(' and ');
+            }
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function (mapPoints) {
+                    const totalPages = Math.ceil(mapPoints.length / itemsPerPage);
+                    updateMapPointList(mapPoints, 1, itemsPerPage);
+                    createPagination(totalPages, mapPoints);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+
+
+
+        $(document).ready(function () {
+            // Load danh sách các cơ sở ban đầu
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/facilities',
+                type: 'GET',
+                success: function (response) {
+                    response.forEach(function (facility) {
+                        // Thêm tùy chọn cho mỗi cơ sở
+                        $('#mappoint-facility').append('<option value="' + facility.facilityId + '">' + facility.facilityName + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+
+            // Sự kiện change cho phần tử select của facility
+            $('#mappoint-facility').change(function () {
+                var selectedFacilityId = $(this).val(); // Lấy giá trị của facility đã chọn
+                $('#mappoint-building').empty(); // Xóa tất cả các tùy chọn tòa nhà hiện có
+                $('#mappoint-floor').empty(); // Xóa tất cả các tùy chọn tầng hiện có
+                $('#mappoint-building').append('<option value="0" disabled selected>Select by building</option>');
+
+
+                // Tạo URL OData để lấy danh sách các tòa nhà từ facility đã chọn
+                var url = 'https://finnsapi.developvn.click/api/buildings?$filter=facilityId eq ' + selectedFacilityId;
+
+                // Gửi yêu cầu AJAX để lấy danh sách các tòa nhà từ facility đã chọn
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (response) {
+                        // Thêm tùy chọn cho mỗi tòa nhà từ response
+                        response.forEach(function (building) {
+                            $('#mappoint-building').append('<option value="' + building.buildingId + '">' + building.buildingName + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+
+            // Sự kiện change cho phần tử select của building
+            $('#mappoint-building').change(function () {
+                var selectedBuildingId = $(this).val(); // Lấy giá trị của tòa nhà đã chọn
+                $('#mappoint-floor').empty(); // Xóa tất cả các tùy chọn tầng hiện có
+                $('#mappoint-floor').append('<option value="0" disabled selected>Select by floor</option>');
+                // Tạo URL OData để lấy danh sách các tầng từ tòa nhà đã chọn
+                var url = 'https://finnsapi.developvn.click/api/floors?$filter=buildingId eq ' + selectedBuildingId;
+
+                // Gửi yêu cầu AJAX để lấy danh sách các tầng từ tòa nhà đã chọn
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (response) {
+                        // Thêm tùy chọn cho mỗi tầng từ response
+                        response.forEach(function (floor) {
+                            $('#mappoint-floor').append('<option value="' + floor.floorId + '">' + floor.floorName + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+        });
+
+        // Create MapPoint API
+        $('#create-map-point-btn').click(function () {
+            var mapPointName = $('#new-map-point-name').val();
+            var locationWeb = {
+                X: parseFloat($('#new-map-point-location-web').val().split(', ')[0]),
+                Y: parseFloat($('#new-map-point-location-web').val().split(', ')[1])
+            };
+            var locationApp = {
+                X: parseFloat($('#new-map-point-location-app').val().split(', ')[0]),
+                Y: parseFloat($('#new-map-point-location-app').val().split(', ')[1])
+            };
+            var locationGPS = {
+                X: parseFloat($('#new-map-point-location-gps').val().split(', ')[0]),
+                Y: parseFloat($('#new-map-point-location-gps').val().split(', ')[1])
+            };
+            var floorID = $('#new-map-point-floor').val();
+            var buildingID = $('#new-map-point-building').val();
+            var image = $('#new-map-point-image')[0].files[0];
+
+            var formData = new FormData();
+            formData.append('MapPointName', mapPointName);
+            formData.append('LocationWeb', JSON.stringify(locationWeb));
+            formData.append('LocationApp', JSON.stringify(locationApp));
+            formData.append('LocationGPS', JSON.stringify(locationGPS));
+            formData.append('FloorID', floorID);
+            formData.append('BuildingID', buildingID);
+            formData.append('Image', image);
+
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/mappoints',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'MapPoint added successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#form-add-map-point').submit();
+                    });
+                    $('#create-new-map').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to add MapPoint. Please try again later.',
+                    });
+                }
+            });
+        });
+
+        // Delete MapPoint API
+       
+
+        // Show edit modal with data by mapPointId
+        $(document).on('click', '.edit-map-point', function () {
+            var mapPointId = $(this).data('id');
+            showEditModal(mapPointId);
+        });
+
+        function showEditModal(mapPointId) {
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/mappoints/' + mapPointId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (mapPoint) {
+                    $('#map-point-id').val(mapPoint.ID);
+                    $('#edit-map-point-name').val(mapPoint.MapPointName);
+                    $('#edit-map-point-location-web').val(`${mapPoint.LocationWeb.X}, ${mapPoint.LocationWeb.Y}`);
+                    $('#edit-map-point-location-app').val(`${mapPoint.LocationApp.X}, ${mapPoint.LocationApp.Y}`);
+                    $('#edit-map-point-location-gps').val(`${mapPoint.LocationGPS.X}, ${mapPoint.LocationGPS.Y}`);
+                    $('#edit-map-point-floor').val(mapPoint.FloorID);
+                    $('#edit-map-point-building').val(mapPoint.BuildingID);
+                    $('#edit-map-point-image').val('');
+
+                    $('#edit-map').modal('show');
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // Save changes for MapPoint
+        $('#edit-map-point-btn').click(function () {
+            var mapPointId = $('#map-point-id').val();
+            var mapPointName = $('#edit-map-point-name').val();
+            var locationWeb = {
+                X: parseFloat($('#edit-map-point-location-web').val().split(', ')[0]),
+                Y: parseFloat($('#edit-map-point-location-web').val().split(', ')[1])
+            };
+            var locationApp = {
+                X: parseFloat($('#edit-map-point-location-app').val().split(', ')[0]),
+                Y: parseFloat($('#edit-map-point-location-app').val().split(', ')[1])
+            };
+            var locationGPS = {
+                X: parseFloat($('#edit-map-point-location-gps').val().split(', ')[0]),
+                Y: parseFloat($('#edit-map-point-location-gps').val().split(', ')[1])
+            };
+            var floorID = $('#edit-map-point-floor').val();
+            var buildingID = $('#edit-map-point-building').val();
+            var image = $('#edit-map-point-image')[0].files[0];
+
+            var formData = new FormData();
+            formData.append('ID', mapPointId);
+            formData.append('MapPointName', mapPointName);
+            formData.append('LocationWeb', JSON.stringify(locationWeb));
+            formData.append('LocationApp', JSON.stringify(locationApp));
+            formData.append('LocationGPS', JSON.stringify(locationGPS));
+            formData.append('FloorID', floorID);
+            formData.append('BuildingID', buildingID);
+            formData.append('Image', image);
+
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/mappoints/' + mapPointId,
+                type: 'PUT',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'MapPoint updated successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#form-edit-map-point').submit();
+                    });
+                    $('#edit-map').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update MapPoint. Please try again later.',
+                    });
+                }
+            });
+        });
+
+        //Redirect mappoints detail
+        $(document).on('click', '.viewMappoint', function () {
+            var mapPointId = $(this).data('id');
+            window.location.href = `Detail/${mapPointId}`;
+        });
+    });
+
+</script>

@@ -1,0 +1,195 @@
+﻿@page
+@model AR_Navigation.Pages.Dashboard.IndexModel
+@{
+    Layout = "_AdminLayout";
+}
+<div class="row">
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="media align-items-center">
+                    <div class="avatar avatar-icon avatar-lg avatar-blue">
+                        <i class="fas fa-th"></i>
+                    </div>
+                    <div class="m-l-15">
+                        <h2 class="m-b-0" id="facility-count"></h2>
+                        <p class="m-b-0 text-muted">Facility</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="media align-items-center">
+                    <div class="avatar avatar-icon avatar-lg avatar-cyan">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="m-l-15">
+                        <h2 class="m-b-0" id="building-count"></h2>
+                        <p class="m-b-0 text-muted">Building</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="media align-items-center">
+                    <div class="avatar avatar-icon avatar-lg avatar-gold">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="m-l-15">
+                        <h2 class="m-b-0" id="mappoint-count"></h2>
+                        <p class="m-b-0 text-muted">Mappoint</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="media align-items-center">
+                    <div class="avatar avatar-icon avatar-lg avatar-purple">
+                        <i class="anticon anticon-user"></i>
+                    </div>
+                    <div class="m-l-15">
+                        <h2 class="m-b-0" id="member-count"></h2>
+                        <p class="m-b-0 text-muted">Designer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<canvas class="chart" id="line-chart"></canvas>
+<script>
+    $(document).ready(function () {
+        var userJson = sessionStorage.getItem('user');
+        if (!userJson) {
+            window.location.href = '/Authen/Login';
+            return; 
+        }
+        // Gọi API để lấy dữ liệu của Facility
+        $.ajax({
+            url: 'https://finnsapi.developvn.click/api/facilities',
+            method: "GET",
+            dataType: 'json',
+            success: function (data) {
+                var facilityCount = data.length;
+                $("#facility-count").text(facilityCount);
+                console.log(facilityCount);
+            },
+            error: function (xhr, status, error) {
+                console.log("Error occurred while fetching facility data:", error);
+            }
+        });
+
+        // Gọi API để lấy dữ liệu của Building
+        $.ajax({
+            url: 'https://finnsapi.developvn.click/api/buildings',
+            method: "GET",
+            dataType: 'json',
+            success: function (data) {
+                var buildingCount = data.length;
+                $("#building-count").text(buildingCount);
+                console.log(buildingCount);
+            },
+            error: function (xhr, status, error) {
+                console.log("Error occurred while fetching building data:", error);
+            }
+        });
+
+        // Gọi API để lấy dữ liệu của Mappoint
+        $.ajax({
+            url: 'https://finnsapi.developvn.click/api/mappoints',
+            method: "GET",
+            dataType: 'json',
+            success: function (data) {
+                var mappointCount = data.length;
+                $("#mappoint-count").text(mappointCount);
+                console.log(mappointCount);
+            },
+            error: function (xhr, status, error) {
+                console.log("Error occurred while fetching mappoint data:", error);
+            }
+        });
+
+        // Gọi API để lấy dữ liệu của Designer
+        $.ajax({
+            url: 'https://finnsapi.developvn.click/api/members',
+            method: "GET",
+            dataType: 'json',
+            success: function (data) {
+                var designerCount = data.length;
+                $("#member-count").text(designerCount);
+                console.log(designerCount);
+            },
+            error: function (xhr, status, error) {
+                console.log("Error occurred while fetching designer data:", error);
+            }
+        });
+    });
+    function drawChart() {
+        //Line Chart
+        const lineChart = document.getElementById("line-chart");
+        const lineCtx = lineChart.getContext('2d');
+        lineChart.height = 120;
+        const lineConfig = new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [{
+                    label: 'Series A',
+                    backgroundColor: 'transparent',
+                    borderColor: 'blue',
+                    pointBackgroundColor: 'blue',
+                    pointBorderColor: 'white',
+                    pointHoverBackgroundColor: 'lightblue',
+                    pointHoverBorderColor: 'lightblue',
+                    data: [65, 59, 80, 81, 56, 55, 40]
+                }
+                ]
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: [{
+                            display: false,
+                        }],
+                        ticks: {
+                            display: true,
+                            fontColor: 'gray',
+                            fontSize: 13,
+                            padding: 10
+                        }
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            drawBorder: false,
+                            drawTicks: false,
+                            borderDash: [3, 4],
+                            zeroLineWidth: 1,
+                            zeroLineBorderDash: [3, 4]
+                        },
+                        ticks: {
+                            display: true,
+                            max: 100,
+                            stepSize: 20,
+                            fontColor: 'gray',
+                            fontSize: 13,
+                            padding: 10
+                        }
+                    }],
+                },
+            }
+        });
+    }
+    window.onload = drawChart;
+</script>

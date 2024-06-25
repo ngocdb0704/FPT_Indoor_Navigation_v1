@@ -1,0 +1,195 @@
+﻿@page
+@model AR_Navigation.Pages.Accounts.ListsMemberModel
+@{
+    Layout = "_AdminLayout";
+}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member List</title>
+    <style>
+        /* Đặt kích thước cho container chứa ảnh */
+        .selected-image-container {
+            width: 200px;
+            height: 200px;
+            border: 2px solid #ced4da;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+            .selected-image-container img {
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 8px;
+            }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="card" id="list-view">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                                <th>Active</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="member-list">
+                            <!-- Table body will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <nav>
+            <ul id="pagination" class="pagination"></ul>
+        </nav>
+    </div>
+
+</body>
+<script>
+    $(document).ready(function () {
+        var userJson = sessionStorage.getItem('user');
+        if (!userJson) {
+            window.location.href = '/Authen/Login';
+        } else {
+            var user = JSON.parse(userJson);
+            if (user.role !== 1) {
+                // Display SweetAlert message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Access Denied',
+                    text: 'You do not have permission to access this page.',
+                    showConfirmButton: false,
+                    timer: 2000 // Close the alert after 2 seconds
+                }).then((result) => {
+                    // Redirect to login page after the alert is closed
+                    window.location.href = '/Buildings/list';
+                });
+            }
+        }
+
+        $.ajax({
+            url: 'https://finnsapi.developvn.click/api/members',
+            type: 'GET',
+            contentType: 'application/json',
+            success: function (members) {
+                updateMemberList(members);
+            },
+            error: function (xhr, status, error) {
+                console.log('Error loading member from API: ' + error);
+                console.log('Status: ' + status);
+                console.log('Response: ' + xhr.responseText);
+            }
+        });
+        // Function to update the member list in the table body
+        function updateMemberList(members) {
+            // Duyệt qua mỗi thành viên và tạo hàng (row) tương ứng trong bảng
+            members.forEach(function (member) {
+                const memberRow = `
+                 <tr>
+        <td>
+            <h5>#${member.memberId}</h5>
+        </td>
+        <td>
+            <h5>${member.fullName}</h5>
+        </td>
+        <td>
+            <h5>${member.phone}</h5>
+        </td>
+        <td>
+            <span>${member.email}</span>
+        </td>
+        <td>
+            <span>${member.address}</span>
+        </td>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="badge badge-${member.status === 'active' ? 'success' : 'danger'} badge-dot m-r-10"></div>
+                <div>${member.status}</div>
+            </div>
+        </td>
+        <td class="text-right">
+            <div class="dropdown dropdown-animated scale-left">
+                <a class="text-gray font-size-18" href="javascript:void(0);" data-toggle="dropdown">
+                    <i class="anticon anticon-ellipsis"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <!-- Conditionally render buttons based on user's userid -->
+                    ${user.userid !== member.memberId ?
+                        `<button class="dropdown-item btn btn-${member.status === 'active' ? 'danger' : 'success'} btn-tone lockAccount" type="button" data-id="${member.memberId}" data-status="${member.status}">
+                            <i class="anticon anticon-eye"></i>
+                            <span class="m-l-10">${member.status === 'active' ? 'Lock' : 'Unlock'}</span>
+                        </button>
+                        <button class="dropdown-item btn btn-warning btn-tone viewProfile" type="button" data-id="${member.memberId}">
+                            <i class="anticon anticon-edit"></i>
+                            <span class="m-l-10">View</span>
+                        </button>` : ''
+                    }
+                </div>
+            </div>
+        </td>
+    </tr>
+            `;
+
+                $('#member-list').append(memberRow);
+            });
+        }
+
+        $(document).on('click', '.viewProfile', function () {
+            var memberId = $(this).data('id');
+            window.location.href = '/Accounts/MemberDetail/' + memberId;
+        });
+
+        $(document).on('click', '.lockAccount', function () {
+            var memberId = $(this).data('id');
+            var currentStatus = $(this).data('status'); // Lấy trạng thái hiện tại từ data-status
+
+            // Xác định trạng thái mới
+            var newStatus = currentStatus === 'active' ? 'deactive' : 'active';
+
+            // Tạo đối tượng dữ liệu để gửi
+            var data = {
+                MemberId: memberId,
+                Status: newStatus
+            };
+
+            // Gọi API UpdateMemberStatus
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/members/updateStatus',
+                type: 'PUT',
+                contentType: 'application/json', // Đặt header Content-Type là JSON
+                data: JSON.stringify(data), // Chuyển đổi dữ liệu thành chuỗi JSON
+                success: function () {
+                    // Hiển thị thông báo SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Member status updated successfully!',
+                        showConfirmButton: false,
+                        timer: 1500 // Đóng thông báo sau 1.5 giây
+                    }).then(function () {
+                        // Reload lại trang sau khi đóng thông báo
+                        location.reload();
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred while updating member status:', error);
+                }
+            });
+        });
+
+
+    });
+</script>

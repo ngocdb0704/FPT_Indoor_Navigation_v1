@@ -1,0 +1,263 @@
+﻿@page 
+@model AR_Navigation.Pages.Profile.MyprofileModel
+@{
+    Layout = "_AdminLayout";
+}
+<div class="container rounded bg-white mt-5 mb-5">
+    <h1 class="text-left" style="display: inline;margin-right:20px; border-bottom: 1px solid black;transition: color 0.3s;" onmouseover="this.style.color='blue'" onmouseout="this.style.color=''">Profile</h1>
+    <a href="/Profile/ChangePassword">
+    <h3 class="text-left" style="display: inline; transition: color 0.3s;" onmouseover="this.style.color='blue'" onmouseout="this.style.color=''">ChangePassword</h3>
+    </a>
+    <div class="row" id="view-profile">
+        <div class="col-md-3 border-right">
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                <img class="rounded-circle mt-5" width="150px" height="150px" id="profile-image">
+                <span class="font-weight-bold" id="profile-name"></span>
+                <span class="text-black-50" id="profile-email"></span>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="text-right mb-1">
+                <button class="btn btn-primary edit-profile">Edit profile</button>
+            </div>
+            <div class="p-3 py-5">
+                @* <div class="row mt-3">
+                <div class="col-md-12">
+                <label class="labels">Image</label>
+                <img id="profile-image" class="img-fluid">
+                </div>
+                </div> *@
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <label class="labels">Name</label>
+                        <input type="text" class="form-control" id="profile-fullname" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label class="labels">Username</label>
+                        <input type="text" class="form-control" id="profile-username" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="labels">Mobile Number</label>
+                        <input type="text" class="form-control" id="profile-mobile" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="labels">Address</label>
+                        <input type="text" class="form-control" id="profile-address" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="labels">Email</label>
+                        <input type="text" class="form-control" id="profile-emails" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="labels">DOB</label>
+                        <input type="text" class="form-control" id="profile-dob" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="labels">Country</label>
+                        <input type="text" class="form-control" id="profile-country" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Edit Profile -->
+<div class="modal fade" id="edit-profile">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Profile</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-profile" asp-page="/Profile/Myprofile" asp-page-handler="EditProfile" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="edit-profile-image">Profile Image</label>
+                        <input type="file" name="ImageFile" class="form-control-file" id="edit-profile-image" aria-describedby="inputGroupFileAddon" onchange="displaySelectedImage(this, 'edit-selected-image-container')">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-profile-name">Name</label>
+                        <input type="text" class="form-control" id="edit-profile-name" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-profile-email">Email</label>
+                        <input type="text" class="form-control" id="edit-profile-email" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-profile-mobile">Mobile Number</label>
+                        <input type="text" class="form-control" id="edit-profile-mobile" placeholder="Enter your mobile number">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-profile-address">Address</label>
+                        <input type="text" class="form-control" id="edit-profile-address" placeholder="Enter your address">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-profile-dob">Date of Birth</label>
+                        <input type="date" class="form-control" id="edit-profile-dob">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-profile-country">Country</label>
+                        <input type="text" class="form-control" id="edit-profile-country">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="save-profile-changes">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //session
+        var userJson = sessionStorage.getItem('user');
+        if (userJson)
+        {
+            var user = JSON.parse(userJson);
+            var userid = user.userid;
+        }else
+        {
+            window.location.href = '/Authen/Login';
+            return;
+        }
+        // Gửi yêu cầu AJAX để lấy thông tin profile từ API
+        $.ajax
+            ({
+                
+                url: 'https://finnsapi.developvn.click/api/profiles/' + userid, // Thay đổi số 1 thành memberId thực tế của bạn
+                type: 'GET',
+                success: function (data) {
+                    // Hiển thị thông tin profile trên trang view profile
+                    $('#profile-name').text(data.fullName);
+                    $('#profile-email').text(data.email);
+                    $('#profile-fullname').val(data.fullName);
+                    $('#profile-username').val(data.username);
+                    $('#profile-mobile').val(data.phone);
+                    $('#profile-address').val(data.address);
+                    $('#profile-emails').val(data.email);
+                    $('#profile-dob').val(data.doB.substring(0, 10));// Cắt chuỗi để lấy ngày tháng năm
+                    $('#profile-country').val(data.country);
+                    var baseUrl = window.location.origin; // Lấy URL cơ sở của trang web
+                    $('#profile-image').attr('src', baseUrl + '/Images/Avatar/' + data.avatar);
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching profile:', error);
+                    // Xử lý lỗi nếu có
+                }
+            });
+
+        // Xử lý sự kiện khi người dùng nhấn nút "Edit profile"
+        $('.edit-profile').click(function () {
+            // Lấy và hiển thị thông tin profile trong form chỉnh sửa
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/profiles/' + userid,
+                type: 'GET',
+                success: function (data) {
+                    $('#edit-profile-name').val(data.fullName);
+                    $('#edit-profile-email').val(data.email);
+                    $('#edit-profile-mobile').val(data.phone);
+                    $('#edit-profile-address').val(data.address);
+                    $('#edit-profile-country').val(data.country);
+
+                    $('#edit-profile-dob').val(data.doB.substring(0, 10)); // Cắt chuỗi để lấy ngày tháng năm
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching profile for editing:', error);
+                    // Xử lý lỗi nếu có
+                }
+            });
+            // Hiển thị modal chỉnh sửa profile
+            $('#edit-profile').modal('show');
+        });
+
+        // Xử lý sự kiện khi người dùng nhấn nút "Save Changes"
+        $('#save-profile-changes').click(function () {
+            var newName = $('#edit-profile-name').val();
+            var newEmail = $('#edit-profile-email').val();
+            var newMobile = $('#edit-profile-mobile').val();
+            var newAddress = $('#edit-profile-address').val();
+            var newDOB = new Date($('#edit-profile-dob').val()).toISOString().slice(0, 10); // Format date to 'yyyy-MM-dd'
+            var newCountry = $('#edit-profile-country').val();
+            // Lấy file hình ảnh được chọn
+            var imageInput = $('#edit-profile-image');
+
+            var formData = new FormData();
+            formData.append('MemberId', userid);
+            formData.append('FullName', newName);
+            formData.append('Email', newEmail);
+            formData.append('Phone', newMobile);
+            formData.append('Address', newAddress);
+            formData.append('DoB', newDOB);
+            formData.append('Country', newCountry);
+            if (imageInput[0].files.length > 0) {
+                var imageFile = imageInput[0].files[0];
+                formData.append('Avatar', imageFile);
+            }
+         
+
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/profiles',
+                type: 'PUT',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    //alert('Profile updated successfully!');
+                    //$('#edit-profile').modal('hide');
+                    $('#profile-name').text(newName);
+                    $('#profile-email').text(newEmail);
+                    //location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Profile Updated',
+                        text: 'Profile information has been updated successfully!',
+                        showConfirmButton: true,
+                       
+                    }).then(() => {
+                        $('#form-edit-profile').submit();
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error updating profile:', error);
+                    console.log(imageInput[0].files);
+                    alert('Failed to update profile. Please try again later.');
+                }
+            });
+        });
+        //get image when selected
+        function displaySelectedImage(input, containerId) {
+            var file = input.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imgElement = document.createElement('img');
+                imgElement.src = e.target.result;
+                imgElement.className = "img-fluid rounded";
+
+                var selectedImageContainer = document.getElementById(containerId);
+                selectedImageContainer.innerHTML = '';
+                selectedImageContainer.appendChild(imgElement);
+            }
+
+            reader.readAsDataURL(file);
+        }
+    });
+
+</script>

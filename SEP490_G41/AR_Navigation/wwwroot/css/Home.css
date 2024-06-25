@@ -1,0 +1,86 @@
+﻿body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-image: url('/Images/Other/homebg.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.content {
+    margin-top: 120px;
+    flex-grow: 1;
+}
+
+.logo {
+    text-align: center;
+    margin-top: 10px;
+}
+
+    .logo img {
+        max-width: 80px;
+        height: auto;
+        border-radius: 50%;
+    }
+
+.title {
+    color: white;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.card {
+    margin-bottom: 30px;
+    opacity: 100;
+    background-color: rgba(193, 173, 173, 0.575);
+    border: none;
+}
+
+.card-btn {
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+}
+
+.card-icon {
+}
+
+p {
+    margin: 0%;
+}
+@media only screen and (max-width: 767px) {
+    .logo img {
+        max-width: 50px;
+    }
+
+    .title h1 {
+        font-size: 24px; /* Giảm kích thước font cho tiêu đề */
+    }
+
+    .card {
+        margin-bottom: 20px;
+    }
+
+    .card-body {
+        text-align: center; /* Căn giữa nội dung trong card */
+    }
+
+    .card-icon {
+        font-size: 24px; /* Giảm kích thước biểu tượng trong card */
+    }
+
+    .card h2 {
+        font-size: 16px; /* Giảm kích thước tiêu đề trong card */
+        margin-top: 10px; /* Tăng khoảng cách giữa biểu tượng và tiêu đề */
+    }
+
+    .card-btn {
+        padding: 10px; /* Tăng khoảng cách giữa các card */
+    }
+}

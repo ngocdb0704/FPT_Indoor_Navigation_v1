@@ -1,0 +1,125 @@
+﻿@page
+@model AR_Navigation.Pages.Authen.LoginModel
+@{
+    Layout = null;
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>FinS</title>
+    <link rel="shortcut icon" href="/Images/Other/Logo.jpg" type="image/x-icon">
+    <link href="/assets/css/app.min.css" rel="stylesheet">
+    <!-- Include ApexCharts CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.27.1/dist/apexcharts.min.css" rel="stylesheet">
+    <link href="/assets/vendors/datatables/dataTables.bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.27.1/dist/apexcharts.min.js"></script>
+    <script src="/assets/vendors/chartjs/Chart.min.js"></script>
+</head>
+<body>
+    <style>
+        .app {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+    </style>
+    <div class="app">
+        <div class="container-fluid">
+            <div class="row justify-content-center align-items-center" style="height: 100vh;">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="display: inline-block; text-decoration: none;">
+                                <img src="/Images/Other/Logo.jpg" alt="Logo" style=" max-width: 40px; max-height: 40px;vertical-align: middle;">
+                                <h3 style="display: inline-block; font-weight: bold; margin-left: 10px; margin-top: 10px; vertical-align: middle;">FPT INDOOR NAVIGATION</h3>
+                            </div>
+                            <h2 class="m-t-20">Sign In</h2>
+                            <p class="m-b-30">Enter your credential to get access</p>
+                            <form asp-page="/Authen/Login" asp-page-handler="Login" id="form-login" method="post">
+                                <div class="form-group">
+                                    <label class="font-weight-semibold" for="userName">Username:</label>
+                                    <div class="input-affix">
+                                        <i class="prefix-icon anticon anticon-user"></i>
+                                        <input type="text" class="form-control" id="userName" placeholder="Username">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="font-weight-semibold" for="password">Password:</label>
+                                    <div class="input-affix m-b-10">
+                                        <i class="prefix-icon anticon anticon-lock"></i>
+                                        <input type="password" class="form-control" id="password" placeholder="Password">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="font-size-13 text-muted">
+                                            <a class="float-right font-size-13 text-muted" href="/Authen/Forget">Forget Password?</a>
+                                        </span>
+                                        <button class="btn btn-primary" id="login-btn">Sign In</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#login-btn').click(function (event) {
+                event.preventDefault(); // Ngăn chặn form submit mặc định
+
+                var username = $('#userName').val();
+                var password = $('#password').val();
+
+                // Gửi yêu cầu đăng nhập qua API
+                $.ajax({
+                    url: 'https://finnsapi.developvn.click/api/members/Login?username=' + username + '&password=' + password,
+                    type: 'GET',
+                    success: function (response) {
+                        console.log('Login successful');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Login Successful',
+                            text: 'You have successfully logged in!',
+                            timer: 3000, // Thời gian hiển thị thông báo (đơn vị: ms), ở đây là 3 giây
+                            showConfirmButton: false // Ẩn nút "Xác nhận" để tự động đóng thông báo
+                        });
+                        console.log('User information:', response.username);
+
+                        var user = { userid: response.memberId, fullname: response.fullName, username: response.username, role: response.roleId, avatar: response.avatar, status: response.status };
+                        sessionStorage.setItem('user', JSON.stringify(user));
+
+                        window.location.href = '/HomePage/Home';
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error while logging in:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Failed',
+                            text: 'Invalid username or password. Please try again!',
+                        });
+                    }
+                });
+            });
+        });
+        $(document).ready(function () {
+            $('#logout-link').click(function (e) {
+                e.preventDefault();
+                sessionStorage.removeItem('user');
+                window.location.href = '/HomePage/Home';
+            });
+        });
+
+    </script>
+</body>
+</html>

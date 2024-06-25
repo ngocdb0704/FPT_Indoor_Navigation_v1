@@ -1,0 +1,215 @@
+﻿@page
+@model IndexModel
+@{
+	Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Finns FPT Indoor Navigation System</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<link type="text/css" rel="stylesheet" href="/path/main.css">
+
+		<style>
+			.console {
+				background-color: black;
+				opacity: 50%;
+			}
+			.sel {
+				height: 50px;
+				min-width: 259px;
+				background-color: #0492a5;
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="info">
+			FinNS FPT Indoor Navigation System
+		</div>
+
+		<div id="content">
+
+		<!--Change display to flex for console-->
+			<div style="display: none; flex-direction: column; justify-content: flex-end; position: fixed; bottom: 0;">
+				<div class="console" id="console3"></div>
+				<div class="console" id="console2"></div>
+				<div class="console" id="console1"></div>
+				<div class="console" id="val1" style="color: yellow;"></div>
+				<div class="console" id="val2" style="color: yellow;"></div>
+			</div>
+
+			<button id="selButton" onclick="toggleSelDiv()" style="position: fixed; display: inline-block; top: 5px; left: 5px; height: 40px; width: 40px; font-size: 38px; padding: 0;"><p style="margin: 0; margin-top: -5px;">⇱</p></button>
+
+			<div id="selDiv" style="position: fixed; top: 50px; left: 0px; display: flex; justify-content: center; flex-direction: column;">
+				<select class="sel" id="startPoint">
+					<option value="0">Select starting point:</option>
+					<optgroup label="Map points are still loading, please wait!"> </optgroup>
+				</select>
+
+				<select class="sel" id="endPoint">
+					<option value="0">Select end point:</option>
+					<optgroup label="Map points are still loading, please wait!"> </optgroup>
+				</select>
+
+				<br>
+
+				<button id="pathButton" onclick="displayPath()">Display path</button>
+			</div>
+
+			<div id="warnWindow" style="display: none; position: fixed; top: 300px; margin: 0 5%; width: 90%; background-color: black; opacity: 0.5;">
+				<h1 style="text-align: center;">We've encountered some problems trying to regconise the environment around you</h1>
+				<p style="text-align: center;">Please ensure that your camera is unobscured and the environmental lighting around you is adequate, then click the button below to reset the scene to ensure that the most accurate path is rendered</p>
+				<button id="compass" onclick="resetCompass()" style="display: block; max-width: 90%; position: relative; margin: 0 auto; height: 30px;">Compass heading: (Click to reset)</button>
+			</div>
+
+			<!--input type="range" min="-180" max="180" value="0" oninput="camY = this.value" style="position: fixed; right: 0; bottom: 0;"-->
+		</div>
+
+		<!-- Script for the path select div -->
+		<script>
+			let selDiv = document.querySelector("#selDiv");
+			let selButton = document.querySelector("#selButton");
+
+			function toggleSelDiv() {
+				if (selDiv.style.display == "flex") {
+					selDiv.style.display = "none";
+					selButton.innerHTML = "<p style=\"margin: 0; margin-top: -5px;\">⇲</p>";
+				}
+				else {
+					selDiv.style.display = "flex";
+					selButton.innerHTML = "<p style=\"margin: 0; margin-top: -5px;\">⇱</p>";
+				}
+			}
+
+		</script>
+
+		
+		<!-- Script for the on screen console -->
+		<script>
+			function addZero(i) {
+				if (i < 10) {i = "0" + i}
+				return i;
+			}
+
+			co1 = document.querySelector("#console1");
+			co2 = document.querySelector("#console2");
+			co3 = document.querySelector("#console3");
+			val1 = document.querySelector("#val1");
+			val2 = document.querySelector("#val2");
+			let d = new Date();
+			let h = addZero(d.getHours());
+			let m = addZero(d.getMinutes());
+			let s = addZero(d.getSeconds());
+			let time = h + ":" + m + ":" + s;			
+			function onScreenConsoleLog(text) {
+				co3.innerHTML = co2.innerHTML;
+				co2.innerHTML = co1.innerHTML;
+
+				d = new Date();
+				h = addZero(d.getHours());
+				m = addZero(d.getMinutes());
+				s = addZero(d.getSeconds());
+				time = h + ":" + m + ":" + s;
+				co1.innerHTML = "[" + time + "]" + text;
+			}
+
+			function onScreenConsoleVal1(name, value) {
+				val1.innerHTML = name + ": " + value
+			}
+
+			function onScreenConsoleVal2(name, value) {
+				val2.innerHTML = name + ": " + value
+			}
+		</script>
+
+		
+		<!-- Script that query all mappoints from the api and put them on the path selec dropdowns -->
+		<script>
+		fetch("https://finnsapi.developvn.click/api/mappoints")
+			.then((res) =>  res.text())
+			.then(async (text) => {
+				let apiYield = JSON.parse(text);
+				//console.log(apiYield);
+
+				document.querySelector("#startPoint").innerHTML = "<option value=\"0\">Select starting point:</option> \
+				<optgroup label=\"Alpha:\"></optgroup> \
+					<optgroup id=\"sF1\" label=\"Floor 1\"></optgroup> \
+					<optgroup id=\"sF2\" label=\"Floor 2\"></optgroup> \
+					<optgroup id=\"sF3\" label=\"Floor 3\"></optgroup> \
+					<optgroup id=\"sF4\" label=\"Floor 4\"></optgroup> \
+					<optgroup id=\"sF5\" label=\"Floor 5\"></optgroup> \
+					<optgroup id=\"sF6\" label=\"Floor 6\"></optgroup> \
+				";
+
+				let sFloorElements = [document.querySelector("#sF1"),
+					document.querySelector("#sF2"),
+					document.querySelector("#sF3"),
+					document.querySelector("#sF4"),
+					document.querySelector("#sF5"),
+					document.querySelector("#sF6")];
+
+				document.querySelector("#endPoint").innerHTML = "<option value=\"0\">Select ending point:</option> \
+				<optgroup label=\"Alpha:\"></optgroup> \
+					<optgroup id=\"eF1\" label=\"Floor 1\"></optgroup> \
+					<optgroup id=\"eF2\" label=\"Floor 2\"></optgroup> \
+					<optgroup id=\"eF3\" label=\"Floor 3\"></optgroup> \
+					<optgroup id=\"eF4\" label=\"Floor 4\"></optgroup> \
+					<optgroup id=\"eF5\" label=\"Floor 5\"></optgroup> \
+					<optgroup id=\"eF6\" label=\"Floor 6\"></optgroup> \
+				";
+
+				let eFloorElements = [document.querySelector("#eF1"),
+					document.querySelector("#eF2"),
+					document.querySelector("#eF3"),
+					document.querySelector("#eF4"),
+					document.querySelector("#eF5"),
+					document.querySelector("#eF6")];
+
+				apiYield.forEach((item, ind) => {
+					sFloorElements[item.floorId - 1].innerHTML += "<option value=\"" + item.mapPointId + "\">" + item.mappointName + "</option>";
+					eFloorElements[item.floorId - 1].innerHTML += "<option value=\"" + item.mapPointId + "\">" + item.mappointName + "</option>";
+				});
+			})
+			.catch((e) => console.error(e))
+		</script>
+
+
+		<!-- Define what the main script does when the render is de-synced and what it will do when it's fixed -->
+		<script>
+			let warn = false;
+			let warnWindow = document.querySelector("#warnWindow");
+
+			function trackingWarnOn() {
+				if (!warn) {
+					warnWindow.style.display = "block";
+					warn = true;
+				}
+			}
+
+			function trackingWarnOff() {
+				if (warn) {
+					warnWindow.style.display = "none";
+					warn = false;
+				}
+			}
+		</script>
+
+
+		<!-- importmap for the main script -->
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "/path/three.module.js",
+					"three/addons/": "/path/"
+				}
+			}
+		</script>
+	<script type="module" src="/path/script.js"></script>
+
+		<!--button onclick="resetCompass()" style="position: fixed; left: 0; up: 0;">Reset</button-->
+		<span style="display: none; position: fixed; bottom: 0; left: 0;">Made with <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a></span>
+	</body>
+</html>

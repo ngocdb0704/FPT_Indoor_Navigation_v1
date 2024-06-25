@@ -1,0 +1,186 @@
+﻿@page "{id:int}"
+@model AR_Navigation.Pages.Maps.detailModel
+@{
+    Layout = "_AdminLayout";
+}
+<style>
+    canvas {
+        width: 100%;
+        background-position: center;
+        background-size: 100%;
+        background-clip: border-box;
+        background-repeat: no-repeat;
+    }
+
+    .btn-with-border {
+        border: 1px solid #000;
+    }
+
+
+    #searchMappoint {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        width: 170px;
+    }
+
+</style>
+<div class="page-header no-gutters">
+    <h1>Map Detail</h1>
+</div>
+<div class="container">
+    <!-- Map Name -->
+    <div class="map-name">
+        <h2 style="display: inline;">Map Name:</h2>
+        <h2 id="map-name" style="display: inline;"></h2>
+    </div>
+
+
+    <!-- Floor Name -->
+    <div class="form-group">
+        <h2 style="display: inline;">Floor Name:</h2>
+        <h2 style="display: inline;" id="floor-name"></h2>
+    </div>
+
+    <!-- Map Image -->
+    <div class="row mb-1">
+        <div class="col-md-4">
+            <input type="text" style="width:110%" class="form-control" id="searchMappoint" placeholder="Search by Name">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-light btn-with-border btn-block" onclick="search()">Search</button>
+        </div>
+    </div>
+    <button type="button" id="setRootButton" class="btn btn-light btn-with-border" onclick="setRoot()">Set Root</button>
+    <button type="button" id="getMPButton" class="btn btn-light btn-with-border">Get Mappoints</button>
+    <button type="button" id="getEDButton" class="btn btn-light btn-with-border">Get Edges</button>
+    <button type="button" id="undoButton" class="btn btn-light btn-with-border" onclick="undo()">Undo</button>
+    <button type="button" id="newMappointButton" class="btn btn-light btn-with-border" onclick="newMappoint()">Choose Mappoint</button>
+
+    @* trường cho canvas *@
+    <div class="selected-image-container" id="map-images-container">
+        <canvas id="canvas_data" style="border: 1px, black;" width="1065%"
+                onclick="databaseLocation(event)">
+        </canvas>
+    </div>
+    @* Hiện tọa dộ trên ảnh và database *@
+    <p id="demo"></p>
+    <p id="demo1"></p>
+    <p id="demo2"></p>
+    <p id="editInfo"></p>
+
+    <button id="clear-canvas-btn" class="btn btn-light btn-with-border">Delete draw</button>
+    <button type="button" id="connectEdgeButton" class="btn btn-light btn-with-border">Connect Edge</button>
+    <button id="add-mappoint-btn" class="btn btn-light btn-with-border" onclick="addEdgeConfirm()">Add Edge</button>
+
+    
+</div>
+<div class="main-content">
+    <div class="card">
+        <div class="card-body">
+            <div class="row m-b-30">
+                <div class="col-lg-12 text-right">
+                    <button class="btn btn-danger" id="delete-selected-egde">
+                        <i class="anticon anticon-delete"></i>
+                        <span>Delete</span>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table id="data-table" class="table ">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Mappoint A</th>
+                                <th>Mappoint B</th>
+                                <th>Distance</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="edge-list">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var userJson = sessionStorage.getItem('user');
+        if (!userJson) {
+            window.location.href = '/Authen/Login';
+        } else {
+            var user = JSON.parse(userJson);
+            if (user.status !== "active") {
+                // Display SweetAlert message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Access Denied',
+                    text: 'You do not have permission to access this page.',
+                    showConfirmButton: false,
+                    timer: 2000 // Close the alert after 2 seconds
+                }).then((result) => {
+                    // Redirect to login page after the alert is closed
+                    window.location.href = '/HomePage/Home';
+                });
+            }
+        }
+        // Lấy mapId từ URL
+        var mapId = window.location.pathname.split("/").pop();
+
+        //Get map data by mapId
+        $.ajax({
+            url: `https://finnsapi.developvn.click/api/maps/${mapId}`,
+            type: 'GET',
+            success: function (map) {
+                // Cập nhật tên bản đồ
+                $('#map-name').text(map.mapName);
+                $('#floor-name').text(map.floorName);
+                var imageSrc = `/Images/Map/${map.mapImage2D}`; 
+                var canvas = document.getElementById('canvas_data');
+                canvas.style.backgroundImage = `url(${imageSrc})`;
+
+                getMapPointsByMapId(mapId, map.buildingId, map.floorId)
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+                // Xử lý lỗi nếu có
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while loading map details.'
+                });
+            }
+        });
+        $(document).on('click', '#map-images-container img', function () {
+            var imageUrl = $(this).attr('src');
+            window.open(imageUrl, '_blank');
+        });
+        if (window.location.href.includes('Maps/Detail')) {
+            renderEgdes(edgeList, mappointList);
+        }
+    });
+</script>
+<script src="/js/MappointDraw.js"></script>
+<script>
+    document.getElementById('getMPButton').addEventListener('click', function () {
+        // Gọi hàm renderPoints từ tệp JavaScript MappointDraw.js và truyền vào mappointList
+        renderPoints(mappointList);
+    });
+    document.getElementById('getEDButton').addEventListener('click', function () {
+        // Gọi hàm renderPoints từ tệp JavaScript MappointDraw.js và truyền vào mappointList
+        renderEgdes(edgeList, mappointList);
+    });
+    document.getElementById('connectEdgeButton').addEventListener('click', function () {
+        setEdge();
+    });
+    // Delete draw line
+    document.getElementById("clear-canvas-btn").addEventListener("click", function () {
+        var canvas = document.getElementById('canvas_data');
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height); // Xóa tất cả các đường vẽ trên canvas
+        edgeAddList = [];
+    });
+</script>

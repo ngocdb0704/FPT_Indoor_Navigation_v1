@@ -1,0 +1,564 @@
+﻿@page "{id:int}"
+@model AR_Navigation.Pages.Buildings.DetailModel
+@{
+    Layout = "_AdminLayout";
+}
+<head>
+
+</head>
+<style>
+    .selected-image-container2 {
+        width: 400px;
+        height: 200px;
+        border: 2px solid #ced4da;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+        .selected-image-container2 img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+    canvas {
+        width: 100%;
+        background-position: center;
+        background-size: 100%;
+        background-clip: border-box;
+        background-repeat: no-repeat;
+    }
+
+    .btn-with-border {
+        border: 1px solid #000;
+    }
+
+
+    #searchMappoint {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        width: 170px;
+    }
+
+</style>
+<div class="page-header no-gutters">
+    <h1>Building Detail</h1>
+    <div class="row align-items-md-center">
+        <div class="col-md-12">
+            <div class="text-md-right m-v-10" id="button-change">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <!-- Building Name -->
+    <div class="building-name">
+        <h2 id="building-name"></h2>
+    </div>
+
+    <!-- Floor Name -->
+    <div class="form-group">
+        <label for="floor-select">Floor :</label>
+        <select class="form-control" id="floor-select">
+            <!-- Dynamically populated floor options will go here -->
+        </select>
+    </div>
+
+    <!-- Map Image -->
+    <div class="row mb-1">
+        <div class="col-md-4">
+            <input type="text" style="width:110%" class="form-control" id="searchMappoint" placeholder="Search by Name">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-light btn-with-border btn-block" onclick="search()">Search</button>
+        </div>
+    </div>
+    <button type="button" id="setRootButton" class="btn btn-light btn-with-border" onclick="setRoot()">Set Root</button>
+    <button type="button" id="getMPButton" class="btn btn-light btn-with-border">Get Mappoints</button>
+    <button type="button" id="undoButton" class="btn btn-light btn-with-border" onclick="undo()">Undo</button>
+    <button type="button" id="newMappointButton" class="btn btn-light btn-with-border" onclick="newMappoint()">Choose Mappoint</button>
+
+    @* trường cho canvas *@
+    <div class="selected-image-container" id="map-images-container">
+        <canvas id="canvas_data" style="border: 1px, black;" width="1065%"
+                onclick="databaseLocation(event)">
+        </canvas>
+    </div>
+    @* Hiện tọa dộ trên ảnh và database *@
+    <p id="demo"></p>
+    <p id="demo1"></p>
+    <p id="demo2"></p>
+    <p id="editInfo"></p>
+
+    <button id="clear-canvas-btn" class="btn btn-light btn-with-border">Delete draw</button>
+    <button id="add-mappoint-btn" class="btn btn-light btn-with-border" onclick="showSelectedPointInAddForm()">Add</button>
+    <button type="button" class="btn btn-light btn-with-border" onclick="setEditmappoint()">Edit</button>
+    <button type="button" class="btn btn-light btn-with-border" onclick="setDeleteMappoint()">Delete</button>
+</div>
+<!-- Content Wrapper START -->
+<div class="main-content">
+    <div class="card">
+        <div class="card-body">
+            <div class="row m-b-30">
+                <div class="col-lg-12 text-right">
+                    <button class="btn btn-danger" id="delete-selected-mappoint">
+                        <i class="anticon anticon-delete"></i>
+                        <span>Delete</span>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table id="data-table" class="table  ">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>ID</th>
+                                <th>Mappoint Name</th>
+                                <th>Location Web</th>
+                                <th>Location App</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="map-list">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Content Wrapper END -->
+@* Modal Map Image*@
+<div class="modal fade" id="add-edit-MapImage-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Map Image</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-page="/Buildings/Detail" asp-page-handler="AddOrEditMap" id="form-add-edit-mapImage" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="FloorId" id="floor-id" value="">
+                    <div class="form-group">
+                        <label for="new-map-name">Map Name</label>
+                        <input type="text" class="form-control" id="new-map-name" placeholder="Please input Map name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-mapp-image">Image</label>
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" name="ImageFile" class="custom-file-input" id="add-edit-mapImage" aria-describedby="inputGroupFileAddon" onchange="displaySelectedImage(this, 'edit-selected-image-container')">
+                                <label class="custom-file-label" for="edit-mapp-image">Choose file</label>
+                            </div>
+                        </div>
+                        <div id="edit-selected-image-container" class="selected-image-container2" style="margin-top: 10px;"></div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="add-edit-map-btn">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal add Mapppoint*@
+<div class="modal fade" id="add-MapPoint-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Map Point</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-add-mapPoint" method="post">
+                    <div class="form-group">
+                        <label for="mapPointName">Map Point Name</label>
+                        <input type="text" class="form-control" id="mapPointName" placeholder="Enter Map Point Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mapPointX">X Coordinate</label>
+                        <input type="text" class="form-control" id="mapPointX" placeholder="Enter X Coordinate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mapPointY">Y Coordinate</label>
+                        <input type="text" class="form-control" id="mapPointY" placeholder="Enter Y Coordinate" required>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="add-mapPoint-btn" onclick="addMapPoint()">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal edit Mapppoint*@
+<div class="modal fade" id="update-MapPoint-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Map Point</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-page="/Buildings/Detail" asp-page-handler="EditMappoint" id="form-update-mapPoint" method="post" enctype="multipart/form-data">
+                    <input type="text" class="form-control" id="update-mapPointId" readonly>
+                    <div class="form-group">
+                        <label for="update-mapPointName">Map Point Name</label>
+                        <input type="text" class="form-control" id="update-mapPointName" placeholder="Enter Map Point Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-mapPointImage">Image</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="update-mapPointImage" onchange="previewImage()">
+                            <label class="custom-file-label" for="update-mapPointImage">Choose file</label>
+                        </div>
+                        <img id="imagePreview" src="#" alt="Image preview" style="display: none; max-width: 100px; max-height: 100px; margin-top: 10px;">
+                    </div>
+                    <div class="form-group">
+                        <label for="update-mapPointLocationApp">Old Location</label>
+                        <input type="text" class="form-control" id="update-mapPointOldLocation" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-mapPointLocationWeb">X Coordinate</label>
+                        <input type="text" class="form-control" id="update-mapPointXCoordinate" placeholder="Enter New location" required>
+                        <label for="update-mapPointLocationWeb">Y Coordinate</label>
+                        <input type="text" class="form-control" id="update-mapPointYCoordinate" placeholder="Enter New location" required>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="update-mapPoint-btn" onclick="editMapPoint()">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        //session
+        var userJson = sessionStorage.getItem('user');
+        if (!userJson) {
+            window.location.href = '/Authen/Login';
+        } else {
+            var user = JSON.parse(userJson);
+            if (user.status !== "active") {
+                // Display SweetAlert message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Access Denied',
+                    text: 'You do not have permission to access this page.',
+                    showConfirmButton: false,
+                    timer: 2000 // Close the alert after 2 seconds
+                }).then((result) => {
+                    // Redirect to login page after the alert is closed
+                    window.location.href = '/HomePage/Home';
+                });
+            }
+        }
+
+        var buildingId = window.location.pathname.split("/").pop();
+
+        //Get data builind Detail
+        $.ajax({
+            url: `https://finnsapi.developvn.click/api/buildings/${buildingId}`,
+            type: 'GET',
+            success: function (building) {
+                // Cập nhật tên tòa nhà
+                $('#building-name').text(building.buildingName);
+
+                // Gửi AJAX request để lấy thông tin về các tầng của tòa nhà
+                $.ajax({
+                    url: `https://finnsapi.developvn.click/api/floors?$filter=buildingId eq ${buildingId}`,
+                    type: 'GET',
+                    success: function (floors) {
+                        // Tạo danh sách các tầng
+                        var floorOptions = '';
+                        floors.forEach(function (floor) {
+                            floorOptions += `<option value="${floor.floorId}">${floor.floorName}</option>`;
+                        });
+                        $('#floor-select').html(floorOptions);
+
+                        // Chọn tầng đầu tiên mặc định
+                        if (floors.length > 0) {
+                            var defaultFloorId = floors[0].floorId;
+                            updateMapImage(defaultFloorId); // Gọi hàm updateMapImage ở đây
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching floors:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while loading floors.'
+                        });
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+                // Xử lý lỗi nếu có
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while loading building details.'
+                });
+            }
+        });
+
+        $('#button-change').on('click', function () {
+            // Open the modal
+            $('#add-edit-MapImage-modal').modal('show');
+        });
+
+        // Event that listens when the user selects a new floor
+        $('#floor-select').change(function () {
+            var selectedFloorId = $(this).val();
+            reloadCanvas();
+            updateMapImage(selectedFloorId);
+        });
+
+        function reloadCanvas() {
+            var canvas = document.getElementById('canvas_data');
+            canvas.width = canvas.width; // Tải lại canvas bằng cách reset width
+        }
+        //update map image by floor
+        function updateMapImage(floorId) {
+            $.ajax({
+                url: `https://finnsapi.developvn.click/api/maps?$filter=floorId eq ${floorId}`,
+                type: 'GET',
+                success: function (maps) {
+                    $.ajax({
+                        url: `https://finnsapi.developvn.click/api/floors/${floorId}`,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (floorData) {
+                            const buildingId = floorData.buildingId;
+
+                            if (maps.length > 0) {
+                                var canvas = document.getElementById('canvas_data');
+                                var context = canvas.getContext('2d');
+                                context.clearRect(0, 0, canvas.width, canvas.height);
+                                var imageSrc = `/Images/Map/${maps[0].mapImage2D}`; // Đường dẫn đến hình ảnh
+                                console.log(maps[0].mapImage2D);
+                                canvas.style.backgroundImage = `url(${imageSrc})`;
+                                // Cập nhật nút chỉnh sửa bản đồ
+                                $('#button-change').html(`
+                                                                    <button class="btn btn-primary" id="edit-map-button" data-id="${maps[0].mapId}" data-toggle="modal" data-target="#add-edit-MapImage">
+                                                                        <i class="anticon anticon-edit"></i>
+                                                                        <span class="m-l-5">Edit Map</span>
+                                                                    </button>
+                                                                `);
+                                $('#add-edit-map-btn').click(function () {
+                                    var mapid = maps[0].mapId;
+                                    editmap(mapid);
+                                });
+                                getMapPointsByMapId(maps[0].mapId, buildingId, maps[0].floorId);
+                            } else {
+                                $('#button-change').html(`
+                                                                    <button class="btn btn-primary" id="add-map-button" data-toggle="modal" data-target="#add-edit-MapImage">
+                                                                        <i class="anticon anticon-plus"></i>
+                                                                        <span class="m-l-5">Add Map</span>
+                                                                    </button>
+                                                                `);
+                                console.log('No map found for the specified floor.');
+                                $('#add-edit-map-btn').click(function () {
+                                    addNewMap();
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error fetching floor details:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'An error occurred while loading floor details.'
+                            });
+                        }
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching map details:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while loading map details.'
+                    });
+                }
+            });
+        }
+
+
+        //Add new Map
+        function addNewMap() {
+            var mapName = $('#new-map-name').val();
+            var floorId = $('#floor-select').val();
+            var imageInput = $('#add-edit-mapImage');
+
+            var formData = new FormData();
+
+            formData.append('MapName', mapName);
+            formData.append('FloorId', floorId);
+            if (imageInput[0].files.length > 0) {
+                var imageFile = imageInput[0].files[0];
+                formData.append('MapImage2D', imageFile);
+            }
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/maps?memberId=' + user.userid,
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log('Map added successfully:', response);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Map added successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#form-add-edit-mapImage').submit();
+                    });
+                    $('#add-edit-MapImage-modal').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error adding map:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while adding the map.'
+                    });
+                }
+            });
+        }
+        //Khi ấn save
+        $('#add-edit-map-btn').click(function () {
+            var mapId = $('#edit-map-button').data('id');
+            editMap(mapId);
+        });
+        //Edit Map
+        function editMap(mapId) {
+            var mapName = $('#new-map-name').val();
+            var floorId = $('#floor-select').val();
+            var imageInput = $('#add-edit-mapImage');
+
+            var formData = new FormData();
+            formData.append('MapName', mapName);
+            formData.append('FloorId', floorId);
+            formData.append('MapId', mapId);
+            if (imageInput[0].files.length > 0) {
+                var imageFile = imageInput[0].files[0];
+                formData.append('MapImage2D', imageFile);
+            }
+
+            $.ajax({
+                url: `https://finnsapi.developvn.click/api/maps/${mapId}`,
+                type: 'PUT',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (mapDetails) {
+                    console.log('Map update successfully:', mapDetails);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Map update successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#form-add-edit-mapImage').submit();
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching map details for editing:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while loading map details for editing.'
+                    });
+                }
+            });
+        }
+
+        //open Edit
+        $(document).on('click', '#edit-map-button', function () {
+            var mapId = $(this).data('id');
+            showEdit(mapId);
+        });
+        //show map info
+        function showEdit(mapId) {
+            $.ajax({
+                url: `https://finnsapi.developvn.click/api/maps/${mapId}`,
+                type: 'GET',
+                success: function (map) {
+                    $('#new-map-name').val(map.mapName);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching map details:', error);
+                    alert('An error occurred while fetching map details.');
+                }
+            });
+        }
+
+
+    });
+
+    //get image when selected
+    function displaySelectedImage(input, containerId) {
+        var file = input.files[0];
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            var imgElement = document.createElement('img');
+            imgElement.src = e.target.result;
+            imgElement.className = "img-fluid rounded";
+
+            var selectedImageContainer = document.getElementById(containerId);
+            selectedImageContainer.innerHTML = '';
+            selectedImageContainer.appendChild(imgElement);
+        }
+
+        reader.readAsDataURL(file);
+    }
+    function previewImage() {
+        var input = document.getElementById('update-mapPointImage');
+        var preview = document.getElementById('imagePreview');
+        var file = input.files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '';
+        }
+    }
+</script>
+
+<script src="/js/MappointDraw.js"></script>
+
+<script>
+    document.getElementById('getMPButton').addEventListener('click', function () {
+        // Gọi hàm renderPoints từ tệp JavaScript MappointDraw.js và truyền vào mappointList
+        renderPoints(mappointList);
+    });
+    // Delete draw line
+    document.getElementById("clear-canvas-btn").addEventListener("click", function () {
+        var canvas = document.getElementById('canvas_data');
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height); // Xóa tất cả các đường vẽ trên canvas
+        beginPoint = { id: "", x: 0, y: 0 };
+        endPoint = { id: "", x: 0, y: 0 };
+    });
+
+
+
+</script>

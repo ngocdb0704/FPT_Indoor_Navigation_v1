@@ -1,0 +1,195 @@
+﻿@page
+@model AR_Navigation.Pages.Authen.ForgetModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forget Password</title>
+    <link rel="stylesheet" type="text/css" href="/assets/css/app.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.27.1/dist/apexcharts.min.css" rel="stylesheet">
+    <link href="/assets/vendors/datatables/dataTables.bootstrap.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/Images/Logo.jpg" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .app {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+
+        .form-group,
+        .card-body {
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .btn {
+            margin-top: 10px;
+        }
+
+        body {
+            background-image: url('/Images/Other/DH_FPT.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="container">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="text-danger">Forget Password</h2>
+                    <!-- Email Input Form -->
+                    <form id="form-input-email">
+                        <div class="form-group">
+                            <label for="email">Enter your email address to get a verification code:</label>
+                            <div class="input-affix">
+                                <i class="prefix-icon anticon anticon-user"></i>
+                                <input type="text" id="email" placeholder="Your email" class="form-control">
+                            </div>
+                            <div id="mess"></div>
+                        </div>
+                        <button id="btn-send-mail" class="btn btn-success">Send</button>
+                        <button id="btn-cancel" class="btn btn-danger"><a href="/Authen/Login" style="text-decoration: none; color: white;">Cancel</a></button>
+                    </form>
+
+                    <!-- Verification Code Form -->
+                    <form id="form-input-valid-code" style="display: none;">
+                        <h3>Enter the code sent to your email:</h3>
+                        <div class="input-affix">
+                            <i class="prefix-icon anticon anticon-user"></i>
+                            <input type="text" id="code" placeholder="Verify code" class="form-control">
+                        </div>
+                        <div id="mess2"></div>
+                        <button id="btn-verify" class="btn btn-success">Verify</button>
+                    </form>
+
+                    <!-- New Password Form -->
+                    <form id="form-input-newpass" style="display: none;">
+                        <h3>Set your new password:</h3>
+                        <div class="input-affix">
+                            <i class="prefix-icon anticon anticon-user"></i>
+                            <input type="password" id="newpass" placeholder="New password" class="form-control">
+                        </div>
+                        <div class="input-affix">
+                            <i class="prefix-icon anticon anticon-user"></i>
+                            <input type="password" id="re_newpass" placeholder="Re-enter new password" class="form-control">
+                        </div>
+                        <div id="mess3"></div>
+                        <button id="btn-change-pass" class="btn btn-success">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+
+            function GetCode(email) {
+                $.ajax({
+                    url: 'https://finnsapi.developvn.click/api/members/GetCode?email=' + email,
+                    method: 'GET',
+                    success: function (response) {
+                        if (response) {
+                            var codeJSON = response;
+                            sessionStorage.setItem('code', JSON.stringify(codeJSON));
+                            $("#form-input-email").hide();
+                            $("#form-input-valid-code").show();
+
+                        }
+                    }
+                });
+            }
+
+            $("#btn-send-mail").click(function (e) {
+                e.preventDefault();
+                var email = $("#email").val().trim();
+
+                if (email === "") {
+                    $("#mess").text("Email is empty.").css("color", "red").show();
+                    return;
+                }
+
+                $.ajax({
+                    url: 'https://finnsapi.developvn.click/api/members/GetMemberByEmail?email=' + email,
+                    method: 'GET',
+                    success: function (response) {
+                        if (response) {
+                            GetCode(email)
+                            var uid = response.memberId;
+                            sessionStorage.setItem('id', JSON.stringify(uid));
+                            $("#mess").hide();
+
+                        } else {
+                            $("#mess").text("Email isn't correct.").css("color", "red").show();
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("An error occurred:", textStatus, errorThrown);
+                        $("#mess").text("Something went wrong, please try again later.").css("color", "red").show();
+                    }
+                });
+
+            });
+            $("#btn-verify").click(function (e) {
+                e.preventDefault();
+                var codeSession = sessionStorage.getItem('code');
+                var codeEnter = $("#code").val();
+                var code = JSON.parse(codeSession);
+                if (code === codeEnter) {
+                    $("#form-input-valid-code").hide();
+                    $("#form-input-newpass").show();
+                    sessionStorage.removeItem('code');
+                } else {
+                    $("#mess2").text("Not correct.").css("color", "red").show();
+                }
+            });
+
+            $("#btn-change-pass").click(function (e) {
+                e.preventDefault();
+                var newpass = $("#newpass").val().trim();
+                var re_newpass = $("#re_newpass").val().trim();
+                var uid = sessionStorage.getItem('id');
+                var id = JSON.parse(uid);
+                if (newpass === "" || re_newpass === "") {
+                    $("#mess3").text("New password cannot be empty.").css("color", "red").show();
+                    return;
+                }
+
+                if (newpass !== re_newpass) {
+                    $("#mess3").text("Passwords do not match.").css("color", "red").show();
+                    return;
+                }
+
+                $.ajax({
+                    url: 'https://finnsapi.developvn.click/api/members/ResetPassword/' + id + '?newpass=' + newpass,
+                    method: 'PUT',
+                    success: function (response) {
+                        $("#mess3").hide();
+                        alert("Your password had been reset");
+                        window.location.href = '/Authen/Login';
+
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("An error occurred:", textStatus, errorThrown);
+                        $("#mess3").text("Something went wrong, please try again later.").css("color", "red").show();
+                    }
+                });
+
+            });
+        });
+    </script>
+</body>
+</html>

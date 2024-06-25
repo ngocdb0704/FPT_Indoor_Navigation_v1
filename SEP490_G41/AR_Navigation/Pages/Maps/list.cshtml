@@ -1,0 +1,697 @@
+﻿@page
+@model AR_Navigation.Pages.Maps.listModel
+@{
+    Layout = "_AdminLayout";
+}
+
+<style>
+    /* Đặt kích thước cho container chứa ảnh */
+    .selected-image-container {
+        width: 200px;
+        height: 200px;
+        border: 2px solid #ced4da;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+        .selected-image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+</style>
+<div class="page-header no-gutters">
+    <h1>Map List</h1>
+    <div class="row align-items-md-center">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="input-affix m-v-10">
+                        <select class="form-control" id="map-facility">
+                            <option value="0" disabled selected>Select by facility</option>
+                            <!-- Options for buildings will be created by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-affix m-v-10">
+                        <select class="form-control" id="map-building">
+                            <option value="0" disabled selected>Select by building</option>
+                            <!-- Options for buildings will be created by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="text-md-right m-v-10">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#create-new-map">
+                    <i class="anticon anticon-plus"></i>
+                    <span class="m-l-5">New Map</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="card" id="list-view">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Map Name</th>
+                            <th>Building Name</th>
+                            <th>Floor Name</th>
+                            <th>Map Manager Name</th>
+                            <th>Image</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="map-list">
+                        
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <nav>
+        <ul id="pagination" class="pagination"></ul>
+    </nav>
+</div>
+
+@* Modal Create Map *@
+<div class="modal fade" id="create-new-map">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Map</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-page="/Maps/List" asp-page-handler="CreateMap" id="form-add-map" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="new-map-name">Map Name</label>
+                        <input type="text" class="form-control" id="new-map-name" placeholder="Please input map name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-building-image">Image</label>
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" name="ImageFile" class="custom-file-input" id="new-building-image" aria-describedby="inputGroupFileAddon" onchange="displaySelectedImage(this, 'add-selected-image-container')">
+                                <label class="custom-file-label" for="new-building-image">Choose file</label>
+                            </div>
+                        </div>
+                        <div id="add-selected-image-container" class="selected-image-container" style="margin-top: 10px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-building">Facility</label>
+                        <select class="form-control" id="new-map-facility">
+                            <option value="0" disabled selected>Select by facility</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-building">Building</label>
+                        <select class="form-control" id="new-map-building">
+                            <option value="0" disabled selected>Select by building</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-map-floor">Floor</label>
+                        <select class="form-control" id="new-map-floor">
+                            <option value="0" disabled selected>Select by floor</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="create-map-btn">Create Map</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Edit Map *@
+<div class="modal fade" id="edit-map">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Map</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="anticon anticon-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-page="/Maps/List" asp-page-handler="EditMap" id="form-edit-map" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="MapId" id="map-id" value="">
+                    <div class="form-group">
+                        <label for="edit-map-name">Map Name</label>
+                        <input type="text" class="form-control" id="edit-map-name" placeholder="Please input map name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-building-image">Image</label>
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" name="ImageFile" class="custom-file-input" id="edit-map-image" aria-describedby="inputGroupFileAddon" onchange="displaySelectedImage(this, 'edit-selected-image-container')">
+                                <label class="custom-file-label" for="new-building-image">Choose file</label>
+                            </div>
+                        </div>
+                        <div id="edit-selected-image-container" class="selected-image-container" style="margin-top: 10px;"></div>
+                    </div>
+                  
+                        <input type="hidden" id="edit-map-floor">
+                       
+                    <button type="button" class="btn btn-primary" id="edit-map-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var userJson = sessionStorage.getItem('user');
+        if (!userJson) {
+            window.location.href = '/Authen/Login';
+        } else {
+            var user = JSON.parse(userJson);
+            if (user.status !== "active") {
+                // Display SweetAlert message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Access Denied',
+                    text: 'You do not have permission to access this page.',
+                    showConfirmButton: false,
+                    timer: 2000 // Close the alert after 2 seconds
+                }).then((result) => {
+                    // Redirect to login page after the alert is closed
+                    window.location.href = '/HomePage/Home';
+                });
+            }
+        }
+        var itemsPerPage = 5;
+        var currentPage = 1; // Khởi tạo trang hiện tại là 1
+
+        // Get map list from API
+        function updateMapList(maps, currentPage, itemsPerPage) {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const mapsToShow = maps.slice(startIndex, endIndex);
+
+            // Sort the map list by name (mapName)
+            maps.sort((a, b) => a.mapName.localeCompare(b.mapName));
+
+            $('#map-list').empty();
+
+            for (const map of mapsToShow) {
+                const mapRow = `
+                <tr>
+                    <td>
+                        <div class="media align-items-center">
+                            <div class="m-l-10">
+                                <h5 class="m-b-0">${map.mapName}</h5>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="media align-items-center">
+                                    <div class="avatar avatar-image rounded">
+                                            <img src="/Images/Building/${map.buildingImg}" alt="">
+                                    </div>
+                                    <div class="m-l-10">
+                                        <h5 class="m-b-0">${map.buildingName}</h5>
+                                    </div>
+                                </div>
+                    </td>
+                    <td>
+                        <span>${map.floorName}</span>
+                    </td>
+                        <td>
+                                <span>${map.managerFullName}</span>
+                        </td>
+                    <td>
+                            <div class="avatar avatar-image rounded">
+                                                    <img src="/Images/Map/${map.mapImage2D}" alt="">
+                            </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="dropdown dropdown-animated scale-left">
+                            <a class="text-gray font-size-18" href="javascript:void(0);" data-toggle="dropdown">
+                                <i class="anticon anticon-ellipsis"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                                    <button class="dropdown-item btn btn-info btn-tone viewMap" type="button" data-id="${map.mapId}">
+                                    <span class="m-l-10">View</span>
+                                </button>
+                                <button class="dropdown-item btn btn-warning btn-tone editMap" type="button" data-id="${map.mapId}">
+                                    <span class="m-l-10">Edit</span>
+                                </button>
+                                <button class="dropdown-item btn btn-danger btn-tone deleteMap" type="button" data-id="${map.mapId}">
+                                    <span class="m-l-10">Delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+                $('#map-list').append(mapRow);
+            }
+        }
+
+        //tạo phân trang
+        function createPagination(totalPages, maps) {
+            var pagination = $('#pagination');
+
+            if (totalPages > 0) {
+                pagination.empty();
+
+                // Nút "Prev"
+                var prevLi = $('<li class="page-item"><a class="page-link" href="#">Prev</a></li>');
+                if (currentPage === 1) {
+                    prevLi.addClass('disabled');
+                }
+                pagination.append(prevLi);
+
+                // Hiển thị trang hiện tại và 2 trang xung quanh
+                var startPage = Math.max(1, currentPage - 1);
+                var endPage = Math.min(totalPages, currentPage + 1);
+
+                for (var i = startPage; i <= endPage; i++) {
+                    var pageLi = $('<li class="page-item"><a class="page-link" href="#">' + i + '</a></li>');
+                    if (i === currentPage) {
+                        pageLi.addClass('active');
+                    }
+                    pagination.append(pageLi);
+                }
+
+                // Nút "Next"
+                var nextLi = $('<li class="page-item"><a class="page-link" href="#">Next</a></li>');
+                if (currentPage === totalPages) {
+                    nextLi.addClass('disabled');
+                }
+                pagination.append(nextLi);
+
+                pagination.show();
+            } else {
+                pagination.hide();
+            }
+
+            pagination.off('click').on('click', 'a', function (event) {
+                event.preventDefault();
+                var page = $(this).parent().text();
+                if (page === 'Prev' && currentPage > 1) {
+                    currentPage--;
+                } else if (page === 'Next' && currentPage < totalPages) {
+                    currentPage++;
+                } else {
+                    currentPage = parseInt(page);
+                }
+                updatePagination(totalPages, maps);
+                updateMapList(maps, currentPage, itemsPerPage);
+            });
+        }
+
+        function updatePagination(totalPages, maps) {
+            var pagination = $('#pagination');
+            pagination.find('li').removeClass('active disabled');
+
+            // Nút "Prev"
+            var prevLi = pagination.find('li:first');
+            if (currentPage === 1) {
+                prevLi.addClass('disabled');
+            }
+
+            // Hiển thị trang hiện tại và 2 trang xung quanh
+            var startPage = Math.max(1, currentPage - 1);
+            var endPage = Math.min(totalPages, currentPage + 1);
+
+            pagination.find('li:not(:first):not(:last)').each(function (index) {
+                var pageNumber = startPage + index;
+                $(this).toggleClass('active', pageNumber === currentPage);
+                $(this).find('a').text(pageNumber);
+            });
+
+            // Nút "Next"
+            var nextLi = pagination.find('li:last');
+            if (currentPage === totalPages) {
+                nextLi.addClass('disabled');
+            }
+        }
+
+        // Get map list from API
+        $.ajax({
+            url: 'https://finnsapi.developvn.click/api/maps',
+            type: 'GET',
+            dataType: 'json',
+            success: function (maps) {
+                const totalPages = Math.ceil(maps.length / itemsPerPage);
+                updateMapList(maps, currentPage, itemsPerPage);
+                createPagination(totalPages, maps);
+            },
+            error: function (xhr, status, error) {
+                console.log('Error loading maps from API: ' + error);
+            }
+        });
+
+        // Filter maps by building
+        $('#map-building').on('change', function () {
+            const selectedBuildingId = $(this).val(); // Get the selected buildingId
+
+            let url = 'https://finnsapi.developvn.click/api/maps';
+            if (selectedBuildingId !== '0' && selectedBuildingId) {
+                url += '?filter=buildingId eq ' + selectedBuildingId;
+            }
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function (maps) {
+                    const totalPages = Math.ceil(maps.length / itemsPerPage);
+                    updateMapList(maps, 1, itemsPerPage);
+                    createPagination(totalPages, maps);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+
+
+
+
+
+        $(document).ready(function () {
+            // Load danh sách các cơ sở ban đầu
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/facilities',
+                type: 'GET',
+                success: function (response) {
+                    response.forEach(function (facility) {
+                        // Thêm tùy chọn cho mỗi cơ sở
+                        $('#map-facility').append('<option value="' + facility.facilityId + '">' + facility.facilityName + '</option>');
+                        $('#new-map-facility').append('<option value="' + facility.facilityId + '">' + facility.facilityName + '</option>');
+                        $('#edit-map-facility').append('<option value="' + facility.facilityId + '">' + facility.facilityName + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+
+
+
+            // Sự kiện change cho phần tử select của facility
+            $('#map-facility').change(function () {
+                var selectedFacilityId = $(this).val(); // Lấy giá trị của facility đã chọn
+                $('#map-building').empty(); // Xóa tất cả các tùy chọn tòa nhà hiện có
+                $('#map-building').append('<option value="0" disabled selected>Select by building</option>');
+
+                // Tạo URL OData để lấy danh sách các tòa nhà từ facility đã chọn
+                var url = 'https://finnsapi.developvn.click/api/buildings?$filter=facilityId eq ' + selectedFacilityId;
+
+                // Gửi yêu cầu AJAX để lấy danh sách các tòa nhà từ facility đã chọn
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (response) {
+                        // Thêm tùy chọn cho mỗi tòa nhà từ response
+                        response.forEach(function (building) {
+                            $('#map-building').append('<option value="' + building.buildingId + '">' + building.buildingName + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+        });
+        $('#new-map-facility').change(function () {
+            var selectedFacilityId = $(this).val();
+            $('#new-map-building').empty();
+            $('#new-map-building').append('<option value="0" disabled selected>Select by building</option>');
+
+            if (selectedFacilityId !== '0') {
+                var url = 'https://finnsapi.developvn.click/api/buildings?$filter=facilityId eq ' + selectedFacilityId;
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (response) {
+                        response.forEach(function (building) {
+                            $('#new-map-building').append('<option value="' + building.buildingId + '">' + building.buildingName + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            }
+        });
+
+        // Load building options based on selected facility for edit modal
+        $('#edit-map-facility').change(function () {
+            var selectedFacilityId = $(this).val();
+            $('#edit-map-building').empty();
+            $('#edit-map-building').append('<option value="0" disabled selected>Select by building</option>');
+
+            if (selectedFacilityId !== '0') {
+                var url = 'https://finnsapi.developvn.click/api/buildings?$filter=facilityId eq ' + selectedFacilityId;
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (response) {
+                        response.forEach(function (building) {
+                            $('#edit-map-building').append('<option value="' + building.buildingId + '">' + building.buildingName + '</option>');
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            }
+        });
+
+
+
+
+        $('#new-map-building').change(function () {
+            var buildingId = $(this).val();
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/floors/building/' + buildingId,
+                type: 'GET',
+                success: function (response) {
+                    $('#new-map-floor').empty(); // Clear existing options
+                    $('#new-map-floor').append('<option value="0" disabled selected>Select by floor</option>');
+                    response.forEach(function (floor) {
+                        $('#new-map-floor').append('<option value="' + floor.floorId + '">' + floor.floorName + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+        $('#edit-map-building').change(function () {
+            var buildingId = $(this).val();
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/floors/building/' + buildingId,
+                type: 'GET',
+                success: function (response) {
+                    $('#edit-map-floor').empty(); // Clear existing options
+                    response.forEach(function (floor) {
+                        $('#edit-map-floor').append('<option value="' + floor.floorId + '">' + floor.floorName + '</option>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+
+
+
+        $('#create-map-btn').click(function () {
+            var mapName = $('#new-map-name').val();
+            var floorId = $('#new-map-floor').val();
+            var imageInput = $('#new-building-image');
+            var userJson = sessionStorage.getItem('user');
+            var user = JSON.parse(userJson); // Parse userJson thành đối tượng JavaScript
+
+            var formData = new FormData();
+            formData.append('MapName', mapName);
+            formData.append('FloorId', floorId);
+            if (imageInput[0].files.length > 0) {
+                var imageFile = imageInput[0].files[0];
+                formData.append('mapImage2D', imageFile);
+            }
+
+            // Send an AJAX POST request to the API
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/maps?memberId=' + user.userid,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Map added successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#form-add-map').submit();
+                    });
+                    $('#create-new-map').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to add map. Please try again later.',
+                    });
+                }
+            });
+        });
+
+        // Delete Map API
+        $(document).on('click', '.deleteMap', function () {
+            var mapId = $(this).data('id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You will not be able to recover this map!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'https://finnsapi.developvn.click/api/maps/' + mapId,
+                        type: 'DELETE',
+                        success: function (response) {
+                            Swal.fire(
+                                'Deleted!',
+                                'Map has been deleted.',
+                                'success'
+                            ).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire(
+                                'Error!',
+                                'Failed to delete map. Please try again later.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        });
+
+        // Show edit modal with data by mapId
+        $(document).on('click', '.editMap', function () {
+            var mapId = $(this).data('id');
+            showEditModal(mapId);
+        });
+
+        function showEditModal(mapId) {
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/maps/' + mapId,
+                type: 'GET',
+                success: function (response) {
+                    $('#map-id').val(response.mapId);
+                    $('#edit-map-name').val(response.mapName);
+                    $('#edit-map-floor').val(response.floorId);
+                    // Hiển thị modal chỉnh sửa
+                    $('#edit-map').modal('show');
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching map details:', error);
+                }
+            });
+        }
+
+        $('#edit-map-btn').click(function () {
+            var mapId = $('#map-id').val();
+            var mapName = $('#edit-map-name').val();
+            var floorId = $('#edit-map-floor').val();
+            var imageInput = $('#edit-map-image');
+
+            var formData = new FormData();
+            formData.append('MapId', mapId);
+            formData.append('MapName', mapName);
+            formData.append('FloorId', floorId);
+            if (imageInput[0].files.length > 0) {
+                var imageFile = imageInput[0].files[0];
+                formData.append('MapImage2D', imageFile);
+            }
+
+            $.ajax({
+                url: 'https://finnsapi.developvn.click/api/maps/',
+                type: 'PUT',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Map Updated',
+                        text: 'Map information has been updated successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#form-edit-map').submit();
+                    });
+                    $('#edit-map').modal('hide');
+                    console.log('Map updated successfully:', response);
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while updating map information.',
+                    });
+                    console.error('Error updating map:', error);
+                }
+            });
+        });
+
+        //Redirect maps detail
+        $(document).on('click', '.viewMap', function () {
+            var mapId = $(this).data('id');
+            window.location.href = `Detail/${mapId}`;
+        });
+
+
+    });
+
+    function displaySelectedImage(input, containerId) {
+        var file = input.files[0];
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            var imgElement = document.createElement('img');
+            imgElement.src = e.target.result;
+            imgElement.className = "img-fluid rounded";
+
+            var selectedImageContainer = document.getElementById(containerId);
+            selectedImageContainer.innerHTML = '';
+            selectedImageContainer.appendChild(imgElement);
+        }
+
+        reader.readAsDataURL(file);
+    }
+</script>

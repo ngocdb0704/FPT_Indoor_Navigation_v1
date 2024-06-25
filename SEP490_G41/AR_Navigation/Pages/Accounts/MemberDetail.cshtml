@@ -1,0 +1,115 @@
+﻿@page "{id:int}"
+@model AR_Navigation.Pages.Accounts.MemberDetailModel
+@{
+    Layout = "_AdminLayout";
+}
+<div class="container rounded bg-white mt-5 mb-5">
+    <h1 class="text-left" style="display: inline;margin-right:20px; border-bottom: 1px solid black;transition: color 0.3s;" onmouseover="this.style.color='blue'" onmouseout="this.style.color=''">Profile</h1>
+    </a>
+    <div class="row" id="view-profile">
+        <div class="col-md-3 border-right">
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                <img class="rounded-circle mt-5" width="150px" height="150px" id="profile-image">
+                <span class="font-weight-bold" id="profile-name"></span>
+                <span class="text-black-50" id="profile-email"></span>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="p-3 py-5">
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <label class="labels">Name</label>
+                        <input type="text" class="form-control" id="profile-fullname" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label class="labels">Username</label>
+                        <input type="text" class="form-control" id="profile-username" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="labels">Mobile Number</label>
+                        <input type="text" class="form-control" id="profile-mobile" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="labels">Address</label>
+                        <input type="text" class="form-control" id="profile-address" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="labels">Email</label>
+                        <input type="text" class="form-control" id="profile-emails" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="labels">DOB</label>
+                        <input type="text" class="form-control" id="profile-dob" disabled>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="labels">Country</label>
+                        <input type="text" class="form-control" id="profile-country" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //session
+        var userJson = sessionStorage.getItem('user');
+        if (!userJson) {
+            window.location.href = '/Authen/Login';
+        } else {
+            var user = JSON.parse(userJson);
+            if (user.role !== 1) {
+                // Display SweetAlert message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Access Denied',
+                    text: 'You do not have permission to access this page.',
+                    showConfirmButton: false,
+                    timer: 2000 // Close the alert after 2 seconds
+                }).then((result) => {
+                    // Redirect to login page after the alert is closed
+                    window.location.href = '/Buildings/list';
+                });
+            }
+        }
+
+        var memberId = window.location.pathname.split("/").pop();
+        // Gửi yêu cầu AJAX để lấy thông tin profile từ API
+        $.ajax
+            ({
+                url: 'https://finnsapi.developvn.click/api/profiles/' + memberId, // Thay đổi số 1 thành memberId thực tế của bạn
+                type: 'GET',
+                success: function (data) {
+                    // Hiển thị thông tin profile trên trang view profile
+                    $('#profile-name').text(data.fullName);
+                    $('#profile-email').text(data.email);
+                    $('#profile-fullname').val(data.fullName);
+                    $('#profile-username').val(data.username);
+                    $('#profile-mobile').val(data.phone);
+                    $('#profile-address').val(data.address);
+                    $('#profile-emails').val(data.email);
+                    $('#profile-dob').val(data.doB.substring(0, 10));// Cắt chuỗi để lấy ngày tháng năm
+                    $('#profile-country').val(data.country);
+                    var baseUrl = window.location.origin; // Lấy URL cơ sở của trang web
+                    $('#profile-image').attr('src', baseUrl + '/Images/Avatar/' + data.avatar);
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching profile:', error);
+                    // Xử lý lỗi nếu có
+                }
+            });
+    });
+
+</script>
